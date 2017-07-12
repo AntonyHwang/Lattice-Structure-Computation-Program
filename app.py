@@ -15,15 +15,31 @@ def is_number(s):
 
 def read_nodes(nodes):
     with open('nodes.txt') as node_file:
-        data = node_file.readlines()
-        for line in data:
+        for line in node_file:
             if not line.strip():
+                continue
+            else:
                 words = line.split()
                 if is_number(words[0]):
                     nodes.append(Node(words[1], words[2], words[3]))
-                    print(nodes)
     node_file.close()
+
+def read_elements(elements):
+    with open('elements.txt') as element_file:
+        for line in element_file:
+            if not line.strip():
+                continue
+            else:
+                words = line.split()
+                if is_number(words[0]):
+                    elements.append(Element(words[6], words[7], words[8]))
+    element_file.close()
 
 def main():
     nodes = []
+    elements = []
     read_nodes(nodes)
+    read_elements(elements)
+
+if __name__ == "__main__":
+    main()
