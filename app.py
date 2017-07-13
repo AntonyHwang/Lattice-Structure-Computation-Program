@@ -46,8 +46,33 @@ def direction_delta(nodes):
     minZ = min(node.z for node in nodes)
     return Node(maxX - minX, maxY - minY, maxZ - minZ)
 
-def construct_lattice(nodes, elements, x, y, z):
-    
+def construct_lattice(shape, nodes, elements, displacement_factor, x, y, z):
+    if shape == 90:
+        x_nodes = []
+        xy_nodes = []
+        xyz_nodes = []
+        for num in range(0, x):
+            for node in nodes:
+                x_nodes.append(Node(node.x + displacement_factor.x, node.y, node.z))
+        for num in range(0, y):
+            for node in x_nodes:
+                xy_nodes.append(Node(node.x, node.y + displacement_factor.y, node.z))
+        for num in range(0, z):
+            for node in xy_nodes:
+                xyz_nodes.append(Node(node.x, node.y, node.z + displacement_factor.z))
+        return xyz_nodes
+
+def write_to_file(nodes, elements):
+    new_node_file = open("output/nodes.txt", "w")
+    new_node_file.write('\n')
+    new_node_file.write(" LIST ALL SELECTED NODES.   DSYS=      0\n")
+    new_node_file.write(" SORT TABLE ON  NODE  NODE  NODE\n")
+    new_node_file.write('\n')
+    count = 0
+    for node in nodes:
+        count = count + 1
+        new_node_file.write("\t" + str(count) + "\t" + str(node.x) + "\t" + str(node.y) + "\t" + str(node.z) + '\n')
+    new_node_file.close()
 
 def main():
     nodes = []
@@ -56,7 +81,9 @@ def main():
     elements = read_elements(elements)
     displacement_factor = direction_delta(nodes)
     print(str(displacement_factor.x) + " " + str(displacement_factor.y) + " " + str(displacement_factor.z))
-    construct_lattice(nodes, elements, 10, 10, 10)
+    nodes = construct_lattice(90, nodes, elements, displacement_factor, 10, 10, 10)
+    #calculate elements
+    write_to_file(nodes, elements)
 
 if __name__ == "__main__":
     main()
