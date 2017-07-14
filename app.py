@@ -50,6 +50,13 @@ def direction_delta(nodes):
     minZ = min(node.z for node in nodes)
     return Node(maxX - minX, maxY - minY, maxZ - minZ)
 
+def remove_duplicates(list):
+    new_list = []
+    for item in list:
+        if item not in new_list:
+            new_list.append(item)
+    return new_list
+
 def construct_lattice(shape, nodes, elements, total_nodes, displacement_factor, x, y, z):
     count = 0;
     x_nodes = []
@@ -77,7 +84,7 @@ def construct_lattice(shape, nodes, elements, total_nodes, displacement_factor, 
             for element in xy_elements:
                 xyz_elements.append(
                     Element(element.n1 + total_nodes, element.n2 + total_nodes, element.n3 + total_nodes))
-        return Lattice(set(xyz_elements), set(xyz_nodes))
+        return Lattice(list(set(xyz_elements)), list(set(xyz_nodes)))
 
 def write_to_file(lattice):
     new_node_file = open("output/nodes.txt", "w")
