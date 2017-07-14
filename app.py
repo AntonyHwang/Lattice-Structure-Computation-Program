@@ -12,6 +12,8 @@ class Node(object):
         self.x, self.y, self.z = x, y, z
     def __hash__(self):
     	return hash((self.x, self.y, self.z))
+    def __eq__(self, other):
+    	return self.x == other.x and self.y == other.y and self.z == other.z
     def toString(self):
     	return "(" + str(self.x) + "," + str(self.y) + "," + str(self.z) + ")"
 
@@ -89,6 +91,10 @@ def construct_lattice(shape, nodes, elements, total_nodes, displacement_factor, 
             for element in xy_elements:
                 xyz_elements.append(
                     Element(element.n1 + total_nodes, element.n2 + total_nodes, element.n3 + total_nodes))
+        # #uncomment to test repeats
+        # return Lattice(list(set(xyz_elements)), list(set(xyz_nodes)))
+        
+        # uncomment to test elements
         return Lattice(xyz_elements, xyz_nodes)
 
 def write_to_file(lattice):
