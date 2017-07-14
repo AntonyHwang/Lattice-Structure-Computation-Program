@@ -79,18 +79,18 @@ def construct_lattice(shape, nodes, elements, total_nodes, displacement_factor, 
             for node in nodes:
                 x_nodes.append(Node(node.x + num * displacement_factor.x, node.y, node.z))
             for element in elements:
-                x_elements.append(Element(element.n1 + total_nodes, element.n2 + total_nodes, element.n3 + total_nodes))
+                x_elements.append(Element(element.n1 + num * total_nodes, element.n2 + num * total_nodes, element.n3 + num * total_nodes))
         for num in range(0, y):
             for node in x_nodes:
                 xy_nodes.append(Node(node.x, node.y + num * displacement_factor.y, node.z))
             for element in x_elements:
-                xy_elements.append(Element(element.n1 + total_nodes, element.n2 + total_nodes, element.n3 + total_nodes))
+                xy_elements.append(Element(element.n1 + num * total_nodes, element.n2 + num * total_nodes, element.n3 + num * total_nodes))
         for num in range(0, z):
             for node in xy_nodes:
                 xyz_nodes.append(Node(node.x, node.y, node.z + num * displacement_factor.z))
             for element in xy_elements:
                 xyz_elements.append(
-                    Element(element.n1 + total_nodes, element.n2 + total_nodes, element.n3 + total_nodes))
+                    Element(element.n1 + num * total_nodes, element.n2 + num * total_nodes, element.n3 + num * total_nodes))
         # #uncomment to test repeats
         # return Lattice(list(set(xyz_elements)), list(set(xyz_nodes)))
 
