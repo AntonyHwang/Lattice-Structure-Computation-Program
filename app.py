@@ -6,9 +6,14 @@ class Element(object):
     def __init__(self, n1, n2, n3):
         self.n1, self.n2, self.n3 = n1, n2, n3
 
+
 class Node(object):
     def __init__(self, x, y, z):
         self.x, self.y, self.z = x, y, z
+    def __hash__(self):
+    	return hash((self.x, self.y, self.z))
+    def toString(self):
+    	return "(" + str(self.x) + "," + str(self.y) + "," + str(self.z) + ")"
 
 def is_number(s):
     try:
@@ -84,25 +89,25 @@ def construct_lattice(shape, nodes, elements, total_nodes, displacement_factor, 
             for element in xy_elements:
                 xyz_elements.append(
                     Element(element.n1 + total_nodes, element.n2 + total_nodes, element.n3 + total_nodes))
-        return Lattice(list(set(xyz_elements)), list(set(xyz_nodes)))
+        return Lattice(xyz_elements, xyz_nodes)
 
 def write_to_file(lattice):
-    new_node_file = open("output/nodes.txt", "w")
-    #new_node_file.write('\n')
-    #new_node_file.write(" LIST ALL SELECTED NODES.   DSYS=      0\n")
-    #new_node_file.write(" SORT TABLE ON  NODE  NODE  NODE\n")
-    #new_node_file.write('\n')
-    count = 0
-    for node in lattice.nodes:
-        count = count + 1
-        new_node_file.write("\t" + str(count) + "\t" + str(node.x) + "\t" + str(node.y) + "\t" + str(node.z) + '\n')
-    new_node_file.close()
+    # new_node_file = open("output/nodes.txt", "w")
+    # #new_node_file.write('\n')
+    # #new_node_file.write(" LIST ALL SELECTED NODES.   DSYS=      0\n")
+    # #new_node_file.write(" SORT TABLE ON  NODE  NODE  NODE\n")
+    # #new_node_file.write('\n')
+    # count = 0
+    # for node in lattice.nodes:
+    #     count = count + 1
+    #     new_node_file.write("\t" + str(count) + "\t" + str(node.x) + "\t" + str(node.y) + "\t" + str(node.z) + '\n')
+    # new_node_file.close()
 
     new_element_file = open("output/elements.txt", "w")
     count = 0
     for element in lattice.elements:
         count = count + 1
-        new_element_file.write("\t" + str(count) + "\t" + str(element.n1) + "\t" + str(element.n2) + "\t" + str(element.n3) + '\n')
+        new_element_file.write("\t" + str(count) + "\t" + lattice.nodes[element.n1].toString() + "\t" + lattice.nodes[element.n2].toString() + "\t" + lattice.nodes[element.n3].toString() + '\n')
     new_element_file.close()
 
 def main():
