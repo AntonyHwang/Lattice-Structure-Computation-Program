@@ -30,11 +30,7 @@ class Element(object):
 
 class Node(object):
     def __init__(self, x, y, z):
-        self.x, self.y, self.z = x, y, z
-    def __hash__(self):
-    	return hash((self.x, self.y, self.z))
-    def __eq__(self, other):
-    	return self.x == other.x and self.y == other.y and self.z == other.z
+        self.x, self.y, self.z = float(x), float(y), float(z)
     def toString(self):
     	return "(" + str(self.x) + "," + str(self.y) + "," + str(self.z) + ")"
 #######################################################################################################################
@@ -80,22 +76,15 @@ def direction_delta(nodes):
     return Node(maxX - minX, maxY - minY, maxZ - minZ)
 
 def check_node_existence(list, n):
-    for node in list:
-        if node.x == n.x and node.y == n.y and node.z == n.z:
-            return 1
-        else:
-            return 0
-
-def check_element_existence(list, e):
-    for element in list:
-        if element.n1 == e.n1 and element.n2 == e.n2 and element.n3 == e.n3:
-            return 1
-        else:
-            return 0
+    if n in list:
+        return 1
+    else:
+        return 0
 
 def construct_lattice(shape, nodes, elements, total_nodes, displacement_factor, x, y, z):
     duplicates = 0
-    count = 0;
+    new_index = 0;
+    node_index = 0
     x_nodes = []
     xy_nodes = []
     xyz_nodes = []
@@ -107,38 +96,74 @@ def construct_lattice(shape, nodes, elements, total_nodes, displacement_factor, 
     if shape == 90:
         for num in range(0, x):
             for node in nodes:
-                if not check_node_existence(nodes, Node(node.x + num * displacement_factor.x, node.y, node.z)):
+                if check_node_existence(nodes, Node(node.x + num * displacement_factor.x, node.y, node.z)):
+                    #x_elements.append(Element(element.n1 + num * total_nodes - duplicates, element.n2 + num * total_nodes - duplicates, element.n3 + num * total_nodes - duplicates))
                     x_nodes.append(Node(node.x + num * displacement_factor.x, node.y, node.z))
+                    count = count + 1
                 else:
                     duplicates = duplicates + 1
+                    # for element in elements:
+                    #     if element.n1 == node_index:
+                    #         element.n1 = new_index
+                    #     if element.n2 == node_index:
+                    #         element.n2 = new_index
+                    #     if element.n3 == node_index:
+                    #         element.n3 = new_index
+            # node_index = node_index + 1
             for element in elements:
-                if not check_element_existence(elements, Element(element.n1 + num * total_nodes, element.n2 + num * total_nodes, element.n3 + num * total_nodes)):
-                    x_elements.append(Element(element.n1 + num * total_nodes, element.n2 + num * total_nodes, element.n3 + num * total_nodes))
+                x_elements.append(
+                    Element(element.n1 + num * total_nodes - duplicates,
+                            element.n2 + num * total_nodes - duplicates,
+                            element.n3 + num * total_nodes - duplicates))
+
         for num in range(0, y):
             for node in x_nodes:
-                if not check_node_existence(nodes, Node(node.x, node.y + num * displacement_factor.y, node.z)):
-                    xy_nodes.append(Node(node.x, node.y + num * displacement_factor.y, node.z))
-                else:
-                    duplicates = duplicates + 1
-            for element in x_elements:
-                if not check_element_existence(elements, Element(element.n1 + num * total_nodes, element.n2 + num * total_nodes, element.n3 + num * total_nodes)):
-                    xy_elements.append(Element(element.n1 + num * total_nodes, element.n2 + num * total_nodes, element.n3 + num * total_nodes))
+                for node in nodes:
+                    if check_node_existence(nodes, Node(node.x + num * displacement_factor.x, node.y, node.z)):
+                        # x_elements.append(Element(element.n1 + num * total_nodes - duplicates, element.n2 + num * total_nodes - duplicates, element.n3 + num * total_nodes - duplicates))
+                        xy_nodes.append(Node(node.x + num * displacement_factor.x, node.y, node.z))
+                        count = count + 1
+                    else:
+                        duplicates = duplicates + 1
+                        # for element in elements:
+                        #     if element.n1 == node_index:
+                        #         element.n1 = new_index
+                        #     if element.n2 == node_index:
+                        #         element.n2 = new_index
+                        #     if element.n3 == node_index:
+                        #         element.n3 = new_index
+                # node_index = node_index + 1
+                for element in elements:
+                    xy_elements.append(
+                        Element(element.n1 + num * total_nodes - duplicates,
+                                element.n2 + num * total_nodes - duplicates,
+                                element.n3 + num * total_nodes - duplicates))
         for num in range(0, z):
-            for node in xy_nodes:
-                if not check_node_existence(nodes, Node(node.x, node.y, node.z + num * displacement_factor.z)):
-                    xyz_nodes.append(Node(node.x, node.y, node.z + num * displacement_factor.z))
+            for node in nodes:
+                if check_node_existence(nodes, Node(node.x + num * displacement_factor.x, node.y, node.z)):
+                    #x_elements.append(Element(element.n1 + num * total_nodes - duplicates, element.n2 + num * total_nodes - duplicates, element.n3 + num * total_nodes - duplicates))
+                    xyz_nodes.append(Node(node.x + num * displacement_factor.x, node.y, node.z))
+                    count = count + 1
                 else:
                     duplicates = duplicates + 1
-            for element in xy_elements:
-                if not check_element_existence(elements, Element(element.n1 + num * total_nodes, element.n2 + num * total_nodes, element.n3 + num * total_nodes)):
-                    xyz_elements.append(Element(element.n1 + num * total_nodes, element.n2 + num * total_nodes, element.n3 + num * total_nodes))
+                    # for element in elements:
+                    #     if element.n1 == node_index:
+                    #         element.n1 = new_index
+                    #     if element.n2 == node_index:
+                    #         element.n2 = new_index
+                    #     if element.n3 == node_index:
+                    #         element.n3 = new_index
+            # node_index = node_index + 1
+            for element in elements:
+                xyz_elements.append(
+                    Element(element.n1 + num * total_nodes - duplicates, element.n2 + num * total_nodes - duplicates, element.n3 + num * total_nodes - duplicates))
 
         #removes duplicates
         # new_nodes = list(set(xyz_nodes))
         # new_elements = list(set(xyz_elements))
         print("duplicates idenetified: " + str(duplicates))
         # #uncomment to test repeats
-        return Lattice(list(set(xyz_elements)), list(set(xyz_nodes)))
+        #return Lattice(list(set(xyz_elements)), list(set(xyz_nodes)))
 
         # uncomment to test elements
         return Lattice(xyz_elements, xyz_nodes)
@@ -155,8 +180,8 @@ def write_to_file(lattice):
     count = 0
     for element in lattice.elements:
         count = count + 1
-        new_element_file.write("\t" + str(count) + "\t" + lattice.nodes[element.n1].toString() + "\t" + lattice.nodes[element.n2].toString() + "\t" + lattice.nodes[element.n3].toString() + '\n')
-    new_element_file.close()
+    #     new_element_file.write("\t" + str(count) + "\t" + lattice.nodes[element.n1].toString() + "\t" + lattice.nodes[element.n2].toString() + "\t" + lattice.nodes[element.n3].toString() + '\n')
+    # new_element_file.close()
 
 def main():
     nodes = []
