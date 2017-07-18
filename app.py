@@ -1,53 +1,20 @@
-#METHOD !
-# class Lattice(object):
-#     def __init__(self, elements, nodes):
-#         self.elements, self.nodes = elements, nodes
-#
-# class Element(object):
-#     def __init__(self, idx, n1, n2, n3):
-#         self.idx, self.n1, self.n2, self.n3 = idx, n1, n2, n3
-#
-#
-# class Node(object):
-#     def __init__(self, idx, x, y, z):
-#         self.idx, self.x, self.y, self.z = x, y, z
-#     def __hash__(self):
-#     	return hash((self.idx, self.x, self.y, self.z))
-#     def __eq__(self, other):
-#     	return self.idx == other.idx, self.x == other.x and self.y == other.y and self.z == other.z
-#     def toString(self):
-#     	return "(" + str(self.idx) +"," + str(self.x) + "," + str(self.y) + "," + str(self.z) + ")"
-#######################################################################################################################
-
-#METHOD 2
 class Lattice(object):
     def __init__(self, elements, nodes):
         self.elements, self.nodes = elements, nodes
 
 class Element(object):
     def __init__(self, n1, n2, n3):
-        self.n1, self.n2, self.n3 = n1, n2, n3
+        self.n1, self.n2, self.n3 =  n1, n2, n3
 
 class Node(object):
-    def __init__(self, x, y, z):
-        self.x, self.y, self.z = x, y, z
+    def __init__(self, idx, x, y, z):
+        self.idx, self.x, self.y, self.z = idx, x, y, z
     def __hash__(self):
-        return hash((self.x, self.y, self.z))
+        return hash((self.idx, self.x, self.y, self.z))
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y and self.z == other.z
     def toString(self):
         return "(" + str(self.x) + "," + str(self.y) + "," + str(self.z) + ")"
-
-def remove_duplicates(values):
-    output = []
-    seen = set()
-    for value in values:
-        # If value has not been encountered yet,
-        # ... add it to both list and set.
-        if value not in seen:
-            output.append(value)
-            seen.add(value)
-    return output
 
 def is_number(s):
     try:
@@ -64,7 +31,7 @@ def read_nodes(nodes):
             else:
                 words = line.split()
                 if is_number(words[0]):
-                    nodes.append(Node(float(words[1]), float(words[2]), float(words[3])))
+                    nodes.append(Node(int(words[0]), float(words[1]), float(words[2]), float(words[3])))
     node_file.close()
     return nodes
 
@@ -87,7 +54,7 @@ def direction_delta(nodes):
     minY = min(node.y for node in nodes)
     maxZ = max(node.z for node in nodes)
     minZ = min(node.z for node in nodes)
-    return Node(maxX - minX, maxY - minY, maxZ - minZ)
+    return Node(0, maxX - minX, maxY - minY, maxZ - minZ)
 
 def check_node_existence(list, n):
     if n in list:
@@ -105,72 +72,85 @@ def get_xyz(list, idx):
 def get_idx(list, node):
     return list.index(node)
 
-def construct_lattice(shape, nodes, elements, total_nodes, displacement_factor, x, y, z):
+def remove_duplicates(nodes):
+    duplicates_list = []
+    for idx in range(0, len(nodes)):
+        prev = idx - 1
+        if idx != 0:
+            if nodes[idx].x == nodes[prev].x and nodes[idx].y == nodes[prev].y and nodes[idx].z == nodes[prev].z:
+                duplicates_list.append([nodes[idx].idx, nodes[prev].idx])
+                nodes[idx].idx = nodes[prev].idx
+    print(duplicates_list)
+    print("duplicates: " + str(len(duplicates_list)))
+    #duplicates_list.sort(key=lambda k: [k[0]])
+    print("duplicates: " + str(len(duplicates_list)))
+    return duplicates_list
 
+def map(elements, duplicate_lists):
+    elements
+
+def construct_lattice(shape, nodes, elements, total_nodes, displacement_factor, x, y, z):
     unique_nodes = list(set(nodes))
+    total_elements = len(elements)
+    current_nodes_idx = 0
     duplicates = 0
-    # new_index = 0;
-    # node_index = 0
-    # new_nodes = []
     x_nodes = []
     xy_nodes = []
     xyz_nodes = []
 
-    # x_elements = []
-    # xy_elements = []
-    # xyz_elements = []
+    x_elements = []
+    xy_elements = []
+    xyz_elements = []
 
     if shape == 90:
-        for num1 in range(0, x):
+        for num in range(0, x):
             for node in nodes:
-                x_nodes.append(Node(node.x + num1 * displacement_factor.x, node.y, node.z))
+                x_nodes.append(Node(current_nodes_idx, node.x + num * displacement_factor.x, node.y, node.z))
+            for element in elements:
+                x_elements.append(Element(element.n1 + total_nodes, element.n2 + total_nodes, element.n3 + total_nodes))
 
-        for num2 in range(0, y):
+        for num in range(0, y):
             for node in x_nodes:
-                xy_nodes.append(Node(node.x, node.y + num2 * displacement_factor.y, node.z))
+                xy_nodes.append(Node(current_nodes_idx, node.x, node.y + num * displacement_factor.y, node.z))
+            for element in x_elements:
+                xy_elements.append(Element(element.n1 + total_nodes, element.n2 + total_nodes, element.n3 + total_nodes))
 
-        for num3 in range(0, z):
+        for num in range(0, z):
             for node in xy_nodes:
-                xyz_nodes.append(Node(node.x, node.y, node.z + num3 * displacement_factor.z))
+                current_nodes_idx += 1
+                xyz_nodes.append(Node(current_nodes_idx, node.x, node.y, node.z + num * displacement_factor.z))
+            for element in xy_elements:
+                xyz_elements.append(Element(element.n1 + total_nodes, element.n2 + total_nodes, element.n3 + total_nodes))
 
-        for node in xyz_nodes:
-            if node not in unique_nodes:
-                unique_nodes.append(node)
-            else:
-                duplicates += 1
+        print(str(len(xyz_nodes)))
+        xyz_nodes.sort(key=lambda k: [k.x, k.y, k.z])
+        duplicates_list = remove_duplicates(xyz_nodes)
+        map(xyz_elements, duplicates_list)
 
-        print("uniq nodes: " + str(len(unique_nodes)))
+        # for node in xyz_nodes:
+        #     # print(str(node.x) + " " + str(node.y) + " " + str(node.z))
+        #     if node not in unique_nodes:
+        #         unique_nodes.append(node)
+        counter = total_elements
 
-        # for element_num in range(0, x * y * z - 1):
-        #     elements.append(Element(0, 0, 0))
-        #     n1_idx = get_idx(unique_nodes, get_xyz(xyz_nodes, elements[element_num].n1))
-        #     n2_idx = get_idx(unique_nodes, get_xyz(xyz_nodes, elements[element_num].n2))
-        #     n3_idx = get_idx(unique_nodes, get_xyz(xyz_nodes, elements[element_num].n3))
-        #     elements[element_num].n1 = n1_idx
-        #     elements[element_num].n2 = n2_idx
-        #     elements[element_num].n3 = n3_idx
 
-        print("duplicates identified: " + str(duplicates))
         # #uncomment to test repeats
         #return Lattice(list(set(xyz_elements)), list(set(xyz_nodes)))
-
         # uncomment to test elements
-        return Lattice(elements, unique_nodes)
+        return Lattice(elements, xyz_nodes)
 
 def write_to_file(lattice):
     new_node_file = open("output/nodes.txt", "w")
-    count = 0
     for node in lattice.nodes:
-        count = count + 1
-        new_node_file.write("\t" + str(count) + "\t" + str(node.x) + "\t" + str(node.y) + "\t" + str(node.z) + '\n')
+        new_node_file.write("\t" + str(node.idx) + "\t" + str(node.x) + "\t" + str(node.y) + "\t" + str(node.z) + '\n')
     new_node_file.close()
 
-    # new_element_file = open("output/elements.txt", "w")
-    # count = 0
-    # for element in lattice.elements:
-    #     count = count + 1
-    #     new_element_file.write("\t" + str(count) + "\t" + lattice.nodes[element.n1].toString() + "\t" + lattice.nodes[element.n2].toString() + "\t" + lattice.nodes[element.n3].toString() + '\n')
-    # new_element_file.close()
+    new_element_file = open("output/elements.txt", "w")
+    count = 0
+    for element in lattice.elements:
+        count = count + 1
+        # new_element_file.write("\t" + str(count) + "\t" + lattice.nodes[element.n1].toString() + "\t" + lattice.nodes[element.n2].toString() + "\t" + lattice.nodes[element.n3].toString() + '\n')
+    new_element_file.close()
 
 def main():
     nodes = []
@@ -181,7 +161,7 @@ def main():
     elements = read_elements(elements)
     displacement_factor = direction_delta(nodes)
     print(str(displacement_factor.x) + " " + str(displacement_factor.y) + " " + str(displacement_factor.z))
-    lattice = construct_lattice(90, nodes, elements, total_nodes, displacement_factor, 2, 2, 2)
+    lattice = construct_lattice(90, nodes, elements, total_nodes, displacement_factor, 10, 10, 10)
     write_to_file(lattice)
 
 if __name__ == "__main__":
