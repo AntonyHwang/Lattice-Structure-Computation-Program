@@ -36,6 +36,8 @@ def read_nodes(nodes):
     return nodes
 
 def read_elements(elements):
+    global ELEMENT_ATTRIBUTES
+    flag = False
     with open('elements.txt') as element_file:
         for line in element_file:
             if not line.strip():
@@ -43,6 +45,9 @@ def read_elements(elements):
             else:
                 words = line.split()
                 if is_number(words[0]):
+                    if not flag:
+                        ELEMENT_ATTRIBUTES = words[1] + " " + words[2] + " " + words[3] + " " + words[4]
+                        flag = True
                     elements.append(Element(int(words[6]), int(words[7]), int(words[8])))
     element_file.close()
     return elements
@@ -147,32 +152,47 @@ def construct_lattice(shape, nodes, elements, total_nodes, displacement_factor, 
         return Lattice(elements, nodes)
 
 def write_to_file(lattice):
-    print("writing " + str(len(lattice.nodes)) +" nodes...")
-    new_node_file = open("output/nodes.txt", "w")
+    # print("writing " + str(len(lattice.nodes)) +" nodes...")
+    # new_node_file = open("output/nodes.txt", "w")
+    # count = 0
+    # for node in lattice.nodes:
+    #     count += 1
+    #     new_node_file.write("\t" + str(count) + "\t" + str(node.x) + "\t" + str(node.y) + "\t" + str(node.z) + '\n')
+    # new_node_file.close()
+
+    # print("writing " + str(len(lattice.elements)) + " elements...")
+    # new_element_file = open("output/elements.txt", "w")
+    # count = 0
+    # for element in lattice.elements:
+    #     count = count + 1
+    #     new_element_file.write("\t" + str(count) + "\t" + str(element.n1) + "\t" + str(element.n2) + "\t" + str(element.n3) + '\n')
+    # new_element_file.close()
+
+    new_msh_file = open("output/lattice.msh", "w")
+    new_msh_file.write("$MeshFormat\n")
+    # MESH FORMAT
+    new_msh_file.write("2.2 0 8\n")
+    new_msh_file.write("$EndMeshFormat\n$Nodes\n")
+    # WRITE NODES HERE
+    # NUM OF NODES
+    new_msh_file.write(str(len(lattice.nodes)) + "\n")
+    # NODES
     count = 0
     for node in lattice.nodes:
         count += 1
-        new_node_file.write("\t" + str(count) + "\t" + str(node.x) + "\t" + str(node.y) + "\t" + str(node.z) + '\n')
-    new_node_file.close()
-
-    print("writing " + str(len(lattice.elements)) + " elements...")
-    new_element_file = open("output/elements.txt", "w")
+        new_msh_file.write(" " + str(count) + " " + str(node.x) + " " + str(node.y) + " " + str(node.z) + '\n')
+    new_msh_file.write("$EndNodes\n$Elements\n")
+    # WRITE ELEMENTS HERE
+    # NUM OF ELEMENTS
+    new_msh_file.write(str(len(lattice.elements)) + "\n")
+    # ELEMENTS
     count = 0
     for element in lattice.elements:
         count = count + 1
-        new_element_file.write("\t" + str(count) + "\t" + str(element.n1) + "\t" + str(element.n2) + "\t" + str(element.n3) + '\n')
-        # try:
-        #     new_element_file.write("\t" + str(count) + "\t" + str(lattice.nodes[element.n1].idx) + "\t" + str(lattice.nodes[element.n2].idx) + "\t" + str(lattice.nodes[element.n3].idx) + '\n')
-        # except:
-        #     #print(str(count) + ": "+"(" + str(element.n1) + "," + str(element.n2) + "," + str(element.n3) + ")")
-        #     if element.n1 > len(lattice.nodes):
-        #         print("Element# " + str(count) + " n1: " + str(element.n1) + " is greater than " + str(len(lattice.nodes)))
-        #     if element.n2 > len(lattice.nodes):
-        #         print("Element# " + str(count) + " n2: " + str(element.n2) + " is greater than " + str(len(lattice.nodes)))
-        #     if element.n3 > len(lattice.nodes):
-        #         print("Element# " + str(count) + " n3: " + str(element.n3) + " is greater than " + str(len(lattice.nodes)))
-            #pass
-    new_element_file.close()
+        new_msh_file.write(str(count) + " " + ELEMENT_ATTRIBUTES + " " + str(element.n1) + " " + str(element.n2) + " " + str(element.n3) + '\n')
+    new_msh_file.write("$EndElements\n")
+    # new_msh_file.write("$STOP")
+    new_msh_file.close()
 
 def main():
     nodes = []
