@@ -82,7 +82,7 @@ def remove_duplicates(nodes):
                 duplicates_list[idx] = nodes[prev].idx
                 # duplicates_list.append([nodes[idx].idx, nodes[prev].idx])
                 nodes[idx].idx = nodes[prev].idx
-    print("duplicates: " + str(len(duplicates_list)))
+    print("duplicates: " + str(len(set(duplicates_list))))
     return duplicates_list
 
 def contains(list, idx):
@@ -95,8 +95,8 @@ def contains(list, idx):
 def map(elements, duplicate_lists):
     for element in elements:
         n1_idx = duplicate_lists[element.n1]
-        n2_idx = duplicate_lists[element.n1]
-        n3_idx = duplicate_lists[element.n1]
+        n2_idx = duplicate_lists[element.n2]
+        n3_idx = duplicate_lists[element.n3]
         if n1_idx != -1:
             element.n1 = n1_idx
         if n2_idx != -1:
@@ -147,19 +147,31 @@ def construct_lattice(shape, nodes, elements, total_nodes, displacement_factor, 
         return Lattice(elements, nodes)
 
 def write_to_file(lattice):
+    print("writing " + str(len(lattice.nodes)) +" nodes...")
     new_node_file = open("output/nodes.txt", "w")
+    count = 0
     for node in lattice.nodes:
-        new_node_file.write("\t" + str(node.idx) + "\t" + str(node.x) + "\t" + str(node.y) + "\t" + str(node.z) + '\n')
+        count += 1
+        new_node_file.write("\t" + str(count) + "\t" + str(node.x) + "\t" + str(node.y) + "\t" + str(node.z) + '\n')
     new_node_file.close()
 
+    print("writing " + str(len(lattice.elements)) + " elements...")
     new_element_file = open("output/elements.txt", "w")
     count = 0
     for element in lattice.elements:
         count = count + 1
-        try:
-            new_element_file.write("\t"  + "\t" + str(lattice.nodes[element.n1].idx) + "\t" + str(lattice.nodes[element.n2].idx) + "\t" + str(lattice.nodes[element.n3].idx) + '\n')
-        except:
-            print("(" + str(element.n1) + "," + str(element.n2) + "," + str(element.n3) + ")")
+        new_element_file.write("\t" + str(count) + "\t" + str(element.n1) + "\t" + str(element.n2) + "\t" + str(element.n3) + '\n')
+        # try:
+        #     new_element_file.write("\t" + str(count) + "\t" + str(lattice.nodes[element.n1].idx) + "\t" + str(lattice.nodes[element.n2].idx) + "\t" + str(lattice.nodes[element.n3].idx) + '\n')
+        # except:
+        #     #print(str(count) + ": "+"(" + str(element.n1) + "," + str(element.n2) + "," + str(element.n3) + ")")
+        #     if element.n1 > len(lattice.nodes):
+        #         print("Element# " + str(count) + " n1: " + str(element.n1) + " is greater than " + str(len(lattice.nodes)))
+        #     if element.n2 > len(lattice.nodes):
+        #         print("Element# " + str(count) + " n2: " + str(element.n2) + " is greater than " + str(len(lattice.nodes)))
+        #     if element.n3 > len(lattice.nodes):
+        #         print("Element# " + str(count) + " n3: " + str(element.n3) + " is greater than " + str(len(lattice.nodes)))
+            #pass
     new_element_file.close()
 
 def main():
