@@ -82,9 +82,6 @@ def remove_duplicates(nodes):
                 duplicates_list[idx] = nodes[prev].idx
                 # duplicates_list.append([nodes[idx].idx, nodes[prev].idx])
                 nodes[idx].idx = nodes[prev].idx
-    print(duplicates_list)
-    print("duplicates: " + str(len(duplicates_list)))
-    #duplicates_list.sort(key=lambda k: [k[0]])
     print("duplicates: " + str(len(duplicates_list)))
     return duplicates_list
 
@@ -124,20 +121,20 @@ def construct_lattice(shape, nodes, elements, total_nodes, displacement_factor, 
             for node in nodes:
                 x_nodes.append(Node(current_nodes_idx, node.x + num * displacement_factor.x, node.y, node.z))
             for element in elements:
-                x_elements.append(Element(element.n1 + total_nodes, element.n2 + total_nodes, element.n3 + total_nodes))
+                x_elements.append(Element(element.n1 + num * total_nodes, element.n2 + num * total_nodes, element.n3 + num * total_nodes))
 
         for num in range(0, y):
             for node in x_nodes:
                 xy_nodes.append(Node(current_nodes_idx, node.x, node.y + num * displacement_factor.y, node.z))
             for element in x_elements:
-                xy_elements.append(Element(element.n1 + total_nodes, element.n2 + total_nodes, element.n3 + total_nodes))
+                xy_elements.append(Element(element.n1 + num * total_nodes, element.n2 + num * total_nodes, element.n3 + num * total_nodes))
 
         for num in range(0, z):
             for node in xy_nodes:
                 current_nodes_idx += 1
                 xyz_nodes.append(Node(current_nodes_idx, node.x, node.y, node.z + num * displacement_factor.z))
             for element in xy_elements:
-                xyz_elements.append(Element(element.n1 + total_nodes, element.n2 + total_nodes, element.n3 + total_nodes))
+                xyz_elements.append(Element(element.n1 + num * total_nodes, element.n2 + num * total_nodes, element.n3 + num * total_nodes))
 
         print(str(len(xyz_nodes)))
         xyz_nodes.sort(key=lambda k: [k.x, k.y, k.z])
@@ -159,7 +156,10 @@ def write_to_file(lattice):
     count = 0
     for element in lattice.elements:
         count = count + 1
-        new_element_file.write("\t" + str(count) + "\t" + lattice.nodes[element.n1].toString() + "\t" + lattice.nodes[element.n2].toString() + "\t" + lattice.nodes[element.n3].toString() + '\n')
+        try:
+            new_element_file.write("\t"  + "\t" + str(lattice.nodes[element.n1].idx) + "\t" + str(lattice.nodes[element.n2].idx) + "\t" + str(lattice.nodes[element.n3].idx) + '\n')
+        except:
+            print("(" + str(element.n1) + "," + str(element.n2) + "," + str(element.n3) + ")")
     new_element_file.close()
 
 def main():
