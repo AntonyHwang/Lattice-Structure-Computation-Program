@@ -1,5 +1,7 @@
 # import progressbar
 # from time import sleep
+import sys
+
 
 class Lattice(object):
     def __init__(self, elements, nodes):
@@ -107,29 +109,50 @@ def generate_lattice(nodes, elements, total_nodes, displacement_factor, x, y, z)
     output.write("$EndMeshFormat\n$Nodes\n")
     # WRITE NODES HERE
     # NUM OF NODES
-    output.write(str((x * y * z) * len(model.nodes)) + "\n")
+    output.write(str(((x) * (y) * (z)) * len(model.nodes)) + "\n")
     print("total: " + str((x * y * z) * len(model.nodes)))
+    total = (x * y * z)
+    print("populating nodes...")
+
     multiplier = 0
+    count = 0
+
     for num1 in range(0,x):
         for num2 in range (0,y):
             for num3 in range(0,z):
+                # print("(" + str(num1) + "," + str(num2) + "," + str(num3) + ")")
+
+                count +=1
+                if (count > (total/ 10)):
+                    count = 0
+                    sys.stdout.write('.')
+                    sys.stdout.flush()
                 for n in model.nodes:
+                    # print("n.x: " + str(n.x) + " + " + str(num1 * displacement_factor.x) + " = " + str(n.x + num1 * displacement_factor.x))
                     output.write(str(n.idx + total_nodes * multiplier) +
                                  " " + str(n.x + num1 * displacement_factor.x) +
                                  " " + str(n.y + num2 * displacement_factor.y) +
                                  " " + str(n.z + num3 * displacement_factor.z) + '\n')
                 multiplier += 1
     output.write("$EndNodes\n$Elements\n")
-    output.write(str((x * y * z) * len(model.elements)) + "\n")
+    print()
+    print("populating elements...")
 
+    output.write(str((x * y * z) * len(model.elements)) + "\n")
     multiplier = 0
     count = 0
+    index = 0
     for num1 in range(0,x):
         for num2 in range (0,y):
             for num3 in range(0,z):
                 for e in model.elements:
+                    index += 1
                     count += 1
-                    output.write(str(count) + " " + ELEMENT_ATTRIBUTES + 
+                    if (count > (x*y*z * len(model.elements)) / 10):
+                        count = 0
+                        sys.stdout.write('.')
+                        sys.stdout.flush()
+                    output.write(str(index) + " " + ELEMENT_ATTRIBUTES + 
                                        " " + str(e.n1 + multiplier * total_nodes) + 
                                        " " + str(e.n2 + multiplier * total_nodes) + 
                                        " " + str(e.n3 + multiplier * total_nodes) + '\n')
@@ -234,8 +257,8 @@ def main():
     y = int(input("y: "))
     z = int(input("z: "))
     unit_lattice = construct_lattice(90, nodes, elements, total_nodes, displacement_factor, 1, 1, 1)
-    generate_lattice(unit_lattice.nodes, unit_lattice.elements, total_nodes, displacement_factor, x, y, z)
-    write_to_file(unit_lattice)
+    generate_lattice(nodes, elements, total_nodes, displacement_factor, x, y, z)
+    #write_to_file(unit_lattice)
 
 if __name__ == "__main__":
     main()
