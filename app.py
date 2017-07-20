@@ -1,3 +1,6 @@
+# import progressbar
+# from time import sleep
+
 class Lattice(object):
     def __init__(self, elements, nodes):
         self.elements, self.nodes = elements, nodes
@@ -49,7 +52,7 @@ def read_elements(elements):
                 if is_number(words[0]):
                     if not flag:
                         #ELEMENT_ATTRIBUTES = words[1] + " " + words[2] + " " + words[3] + " " + words[4]
-                        ELEMENT_ATTRIBUTES = "2 2 3 2"
+                        ELEMENT_ATTRIBUTES = "2 2 3 4"
                         flag = True
                     elements.append(Element(int(words[6]), int(words[7]), int(words[8])))
     element_file.close()
@@ -88,6 +91,51 @@ def map(elements, duplicate_lists):
             element.n3 = n3_idx
     return elements
 
+# construct a lattice from an already existing unit structure
+# could be purposed into multiplying larger lattices as well
+# INTUITION: attempt to construct lattice by actively writing as oppsed to storing
+#            data to write in a seperate function. This should make program functional 
+#            for large values but will make runtime slower and result in a less modular
+#            program overall
+def generate_lattice(nodes, elements, total_nodes, displacement_factor, x, y, z):
+    model = Lattice(elements, nodes)
+
+    output = open("output/test.msh","w")
+    output.write("$MeshFormat\n")
+    # MESH FORMAT
+    output.write("2.2 0 8\n")
+    output.write("$EndMeshFormat\n$Nodes\n")
+    # WRITE NODES HERE
+    # NUM OF NODES
+    output.write(str((x * y * z) * len(model.nodes)) + "\n")
+    print("total: " + str((x * y * z) * len(model.nodes)))
+    multiplier = 0
+    for num1 in range(0,x):
+        for num2 in range (0,y):
+            for num3 in range(0,z):
+                for n in model.nodes:
+                    output.write(str(n.idx + total_nodes * multiplier) +
+                                 " " + str(n.x + num1 * displacement_factor.x) +
+                                 " " + str(n.y + num2 * displacement_factor.y) +
+                                 " " + str(n.z + num3 * displacement_factor.z) + '\n')
+                multiplier += 1
+    output.write("$EndNodes\n$Elements\n")
+    output.write(str((x * y * z) * len(model.elements)) + "\n")
+
+    multiplier = 0
+    count = 0
+    for num1 in range(0,x):
+        for num2 in range (0,y):
+            for num3 in range(0,z):
+                for e in model.elements:
+                    count += 1
+                    output.write(str(count) + " " + ELEMENT_ATTRIBUTES + 
+                                       " " + str(e.n1 + multiplier * total_nodes) + 
+                                       " " + str(e.n2 + multiplier * total_nodes) + 
+                                       " " + str(e.n3 + multiplier * total_nodes) + '\n')
+                multiplier +=1
+    output.write("$EndElements\n")
+    output.close()
 
 def construct_lattice(shape, nodes, elements, total_nodes, displacement_factor, x, y, z):
     final_nodes = []
@@ -95,9 +143,18 @@ def construct_lattice(shape, nodes, elements, total_nodes, displacement_factor, 
     Emax = 0
     prev = -1
     emultiplier = 0
+
+    # print("Constructing Lattice...")
+    # bar = progressbar.ProgressBar(maxval= (x * y * z), \
+    # widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
+    # bar.start()
+    
     for num1 in range (0, x):
         for num2 in range (0, y):
             for num3 in range (0, z):
+
+                # bar.update(i+1)
+                
                 if(prev != emultiplier):
                     #print("multiplier is now " + str(emultiplier))
                     prev = emultiplier
@@ -112,6 +169,7 @@ def construct_lattice(shape, nodes, elements, total_nodes, displacement_factor, 
                     #print(temp.toString())
                     final_elements.append(temp)
                 emultiplier +=1
+    # bar.finish()
     final_nodes.sort(key=lambda k: [k.x, k.y, k.z])
     duplicates_list = remove_duplicates(final_nodes)
     final_elements = map(final_elements, duplicates_list)
@@ -171,8 +229,13 @@ def main():
     elements = read_elements(elements)
     displacement_factor = direction_delta(nodes)
     print(str(displacement_factor.x) + " " + str(displacement_factor.y) + " " + str(displacement_factor.z))
-    lattice = construct_lattice(90, nodes, elements, total_nodes, displacement_factor, 2, 2, 2)
-    write_to_file(lattice)
+    print("\ninput values for lattice structure")
+    x = int(input("x: "))
+    y = int(input("y: "))
+    z = int(input("z: "))
+    unit_lattice = construct_lattice(90, nodes, elements, total_nodes, displacement_factor, 1, 1, 1)
+    generate_lattice(unit_lattice.nodes, unit_lattice.elements, total_nodes, displacement_factor, x, y, z)
+    write_to_file(unit_lattice)
 
 if __name__ == "__main__":
     main()
