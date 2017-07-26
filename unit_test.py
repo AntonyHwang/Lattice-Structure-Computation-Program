@@ -37,6 +37,6 @@ def main():
 	elements = app.read_elements([])
 	displacement_factor = app.direction_delta(nodes)
 	# unitTest(nodes, elements, displacement_factor)
-	individual_test(nodes, elements, displacement_factor, 20, 20, 20, 10)
+	individual_test(nodes, elements, displacement_factor, 0, 0, 0, 10)
 if __name__ == "__main__":
 	main()
