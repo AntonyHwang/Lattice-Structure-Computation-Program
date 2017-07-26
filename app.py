@@ -123,6 +123,8 @@ def generate_lattice(nodes, elements, total_nodes, displacement_factor, x, y, z)
     y_delta = 0
     z_delta = 0
 
+    tenth = total * 0.1
+
     for num1 in range(0,x):
         x_delta += displacement_factor.x
         y_delta = 0
@@ -132,7 +134,7 @@ def generate_lattice(nodes, elements, total_nodes, displacement_factor, x, y, z)
             for num3 in range(0,z):
                 z_delta += displacement_factor.z
                 count +=1
-                if (count > (total * 0.1)):
+                if (count > (tenth)):
                     count = 0
                     sys.stdout.write('.')
                     sys.stdout.flush()
@@ -140,9 +142,8 @@ def generate_lattice(nodes, elements, total_nodes, displacement_factor, x, y, z)
                     output.write(str(n.idx + nodes_count) +
                                  " " + str(n.x + x_delta) +
                                  " " + str(n.y + y_delta) +
-                                 " " + str(n.z + z_delta) + '\n')
+                                 " " + str(n.z + z_delta) + ' ')
                 nodes_count += total_nodes
-                multiplier += 1
     
     # Elements
     output.write("$EndNodes\n$Elements\n")
@@ -150,6 +151,7 @@ def generate_lattice(nodes, elements, total_nodes, displacement_factor, x, y, z)
     print("populating elements...")
 
     e_max = (x * y * z) * len(model.elements)
+    tenth = e_max * 0.1
 
     output.write(str(e_max) + "\n")
     
@@ -163,14 +165,14 @@ def generate_lattice(nodes, elements, total_nodes, displacement_factor, x, y, z)
                 for e in model.elements:
                     index += 1
                     count += 1
-                    if (count > (e_max) * 0.1):
+                    if (count > tenth):
                         count = 0
                         sys.stdout.write('.')
                         sys.stdout.flush()
                     output.write(str(index) + " " + ELEMENT_ATTRIBUTES + 
                                        " " + str(e.n1 + node_count) + 
                                        " " + str(e.n2 + node_count) + 
-                                       " " + str(e.n3 + node_count) + '\n')
+                                       " " + str(e.n3 + node_count) + ' ')
                 node_count += total_nodes
     output.write("$EndElements\n")
     output.close()
