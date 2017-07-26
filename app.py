@@ -1,7 +1,7 @@
 # import progressbar
 # from time import sleep
 import sys
-
+import time
 
 class Lattice(object):
     def __init__(self, elements, nodes):
@@ -258,7 +258,9 @@ def main():
     x = int(input("x: "))
     y = int(input("y: "))
     z = int(input("z: "))
+    start_time = time.time()
     generate_lattice(nodes, elements, total_nodes, displacement_factor, x, y, z)
+    print("\nruntime: " + str(time.time() - start_time))
     #write_to_file(unit_lattice)
 
 if __name__ == "__main__":
