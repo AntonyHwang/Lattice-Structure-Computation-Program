@@ -1,6 +1,7 @@
 # import progressbar
 # from time import sleep
 import sys
+import time
 
 
 class Lattice(object):
@@ -117,20 +118,30 @@ def generate_lattice(nodes, elements, total_nodes, displacement_factor, x, y, z)
 
     multiplier = 0
     count = 0
+    nodes_count = 0
+    x_delta = 0
+    y_delta = 0
+    z_delta = 0
 
     for num1 in range(0,x):
+        x_delta += displacement_factor.x
+        y_delta = 0
         for num2 in range (0,y):
+            y_delta += displacement_factor.y
+            z_delta = 0
             for num3 in range(0,z):
+                z_delta += displacement_factor.z
                 count +=1
-                if (count > (total/ 10)):
+                if (count > (total * 0.1)):
                     count = 0
                     sys.stdout.write('.')
                     sys.stdout.flush()
                 for n in model.nodes:
-                    output.write(str(n.idx + total_nodes * multiplier) +
-                                 " " + str(n.x + num1 * displacement_factor.x) +
-                                 " " + str(n.y + num2 * displacement_factor.y) +
-                                 " " + str(n.z + num3 * displacement_factor.z) + '\n')
+                    output.write(str(n.idx + nodes_count) +
+                                 " " + str(n.x + x_delta) +
+                                 " " + str(n.y + y_delta) +
+                                 " " + str(n.z + z_delta) + '\n')
+                nodes_count += total_nodes
                 multiplier += 1
     
     # Elements
@@ -138,8 +149,11 @@ def generate_lattice(nodes, elements, total_nodes, displacement_factor, x, y, z)
     print()
     print("populating elements...")
 
+    e_max = (x * y * z) * len(model.elements)
 
-    output.write(str((x * y * z) * len(model.elements)) + "\n")
+    output.write(str(e_max) + "\n")
+    
+    node_count = 0
     multiplier = 0
     count = 0
     index = 0
@@ -149,18 +163,17 @@ def generate_lattice(nodes, elements, total_nodes, displacement_factor, x, y, z)
                 for e in model.elements:
                     index += 1
                     count += 1
-                    if (count > (x * y * z * len(model.elements)) / 10):
+                    if (count > (e_max) * 0.1):
                         count = 0
                         sys.stdout.write('.')
                         sys.stdout.flush()
                     output.write(str(index) + " " + ELEMENT_ATTRIBUTES + 
-                                       " " + str(e.n1 + multiplier * total_nodes) + 
-                                       " " + str(e.n2 + multiplier * total_nodes) + 
-                                       " " + str(e.n3 + multiplier * total_nodes) + '\n')
-                multiplier +=1
+                                       " " + str(e.n1 + node_count) + 
+                                       " " + str(e.n2 + node_count) + 
+                                       " " + str(e.n3 + node_count) + '\n')
+                node_count += total_nodes
     output.write("$EndElements\n")
     output.close()
-
 # Depreciated
 def construct_lattice(shape, nodes, elements, total_nodes, displacement_factor, x, y, z):
     final_nodes = []
@@ -258,8 +271,9 @@ def main():
     x = int(input("x: "))
     y = int(input("y: "))
     z = int(input("z: "))
+    start_time = time.time()
     generate_lattice(nodes, elements, total_nodes, displacement_factor, x, y, z)
-    #write_to_file(unit_lattice)
+    print("\nruntime: " + str(time.time() - start_time))
 
 if __name__ == "__main__":
     main()
