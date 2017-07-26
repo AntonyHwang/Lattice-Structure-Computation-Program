@@ -111,9 +111,9 @@ def generate_lattice(nodes, elements, total_nodes, displacement_factor, x, y, z)
     # WRITE NODES HERE
     # NUM OF NODES
     output.write(str(((x) * (y) * (z)) * len(model.nodes)) + "\n")
-    print("total: " + str((x * y * z) * len(model.nodes)))
-    total = (x * y * z)
-    print("populating nodes...")
+    # print("total: " + str((x * y * z) * len(model.nodes)))
+    # total = (x * y * z)
+    # print("populating nodes...")
 
     multiplier = 0
     count = 0
@@ -122,10 +122,10 @@ def generate_lattice(nodes, elements, total_nodes, displacement_factor, x, y, z)
         for num2 in range (0,y):
             for num3 in range(0,z):
                 count +=1
-                if (count > (total/ 10)):
-                    count = 0
-                    sys.stdout.write('.')
-                    sys.stdout.flush()
+                # if (count > (total/ 10)):
+                #     count = 0
+                #     sys.stdout.write('.')
+                #     sys.stdout.flush()
                 for n in model.nodes:
                     output.write(str(n.idx + total_nodes * multiplier) +
                                  " " + str(n.x + num1 * displacement_factor.x) +
@@ -135,8 +135,8 @@ def generate_lattice(nodes, elements, total_nodes, displacement_factor, x, y, z)
     
     # Elements
     output.write("$EndNodes\n$Elements\n")
-    print()
-    print("populating elements...")
+    # print()
+    # print("populating elements...")
 
 
     output.write(str((x * y * z) * len(model.elements)) + "\n")
@@ -149,10 +149,10 @@ def generate_lattice(nodes, elements, total_nodes, displacement_factor, x, y, z)
                 for e in model.elements:
                     index += 1
                     count += 1
-                    if (count > (x * y * z * len(model.elements)) / 10):
-                        count = 0
-                        sys.stdout.write('.')
-                        sys.stdout.flush()
+                    # if (count > (x * y * z * len(model.elements)) / 10):
+                    #     count = 0
+                    #     sys.stdout.write('.')
+                    #     sys.stdout.flush()
                     output.write(str(index) + " " + ELEMENT_ATTRIBUTES + 
                                        " " + str(e.n1 + multiplier * total_nodes) + 
                                        " " + str(e.n2 + multiplier * total_nodes) + 
