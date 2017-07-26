@@ -21,6 +21,7 @@ def individual_test(nodes, elements, displacement_factor, x, y, z, num_of_tests)
 	total_time = 0
 	total_bytes = 0
 	for i in range(0,num_of_tests):
+		print("running test# " + str(i) + "...")
 		start_time = time.time()
 		app.generate_lattice(nodes, elements, nodes[len(nodes) - 1].idx, displacement_factor, x, y, z)
 		temp_time = time.time() - start_time
@@ -36,6 +37,6 @@ def main():
 	elements = app.read_elements([])
 	displacement_factor = app.direction_delta(nodes)
 	# unitTest(nodes, elements, displacement_factor)
-	individual_test(nodes, elements, displacement_factor, 5, 5, 5, 100)
+	individual_test(nodes, elements, displacement_factor, 20, 20, 20, 10)
 if __name__ == "__main__":
 	main()
