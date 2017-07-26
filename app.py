@@ -6,6 +6,7 @@ import sys
 class Lattice(object):
     def __init__(self, elements, nodes):
         self.elements, self.nodes = elements, nodes
+    
 
 class Element(object):
     def __init__(self, n1, n2, n3):
@@ -102,7 +103,7 @@ def map(elements, duplicate_lists):
 def generate_lattice(nodes, elements, total_nodes, displacement_factor, x, y, z):
     model = Lattice(elements, nodes)
 
-    output = open("output/test.msh","w")
+    output = open("output/lattice.msh","w")
     output.write("$MeshFormat\n")
     # MESH FORMAT
     output.write("2.2 0 8\n")
@@ -120,23 +121,23 @@ def generate_lattice(nodes, elements, total_nodes, displacement_factor, x, y, z)
     for num1 in range(0,x):
         for num2 in range (0,y):
             for num3 in range(0,z):
-                # print("(" + str(num1) + "," + str(num2) + "," + str(num3) + ")")
-
                 count +=1
                 if (count > (total/ 10)):
                     count = 0
                     sys.stdout.write('.')
                     sys.stdout.flush()
                 for n in model.nodes:
-                    # print("n.x: " + str(n.x) + " + " + str(num1 * displacement_factor.x) + " = " + str(n.x + num1 * displacement_factor.x))
                     output.write(str(n.idx + total_nodes * multiplier) +
                                  " " + str(n.x + num1 * displacement_factor.x) +
                                  " " + str(n.y + num2 * displacement_factor.y) +
                                  " " + str(n.z + num3 * displacement_factor.z) + '\n')
                 multiplier += 1
+    
+    # Elements
     output.write("$EndNodes\n$Elements\n")
     print()
     print("populating elements...")
+
 
     output.write(str((x * y * z) * len(model.elements)) + "\n")
     multiplier = 0
@@ -148,7 +149,7 @@ def generate_lattice(nodes, elements, total_nodes, displacement_factor, x, y, z)
                 for e in model.elements:
                     index += 1
                     count += 1
-                    if (count > (x*y*z * len(model.elements)) / 10):
+                    if (count > (x * y * z * len(model.elements)) / 10):
                         count = 0
                         sys.stdout.write('.')
                         sys.stdout.flush()
@@ -160,6 +161,7 @@ def generate_lattice(nodes, elements, total_nodes, displacement_factor, x, y, z)
     output.write("$EndElements\n")
     output.close()
 
+# Depreciated
 def construct_lattice(shape, nodes, elements, total_nodes, displacement_factor, x, y, z):
     final_nodes = []
     final_elements = []
@@ -256,7 +258,6 @@ def main():
     x = int(input("x: "))
     y = int(input("y: "))
     z = int(input("z: "))
-    unit_lattice = construct_lattice(90, nodes, elements, total_nodes, displacement_factor, 1, 1, 1)
     generate_lattice(nodes, elements, total_nodes, displacement_factor, x, y, z)
     #write_to_file(unit_lattice)
 
