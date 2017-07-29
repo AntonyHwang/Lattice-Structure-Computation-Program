@@ -87,14 +87,26 @@ def direction_delta(nodes):
     minZ = min(node.z for node in nodes)
     return Node(0, maxX - minX, maxY - minY, maxZ - minZ)
 
-def construct_lattice(unit_mesh, total_nodes, displacement_factor, dimension):
-    unit_m = stl.Stl('test.stl')  # Load stl
-    #
-    # for num1 in range (0, dimension.x):
-    #
-    # for num2 in range (0, dimension.y):
-    #
-    # for num3 in range (0, dimension.z):
+def construct_lattice(displacement_factor, dimension):
+    total_num = dimension.x * dimension.y * dimension.z
+    count = 0
+    unit_m = stl.Stl('output/stl/unit.stl')  # Load stl
+    x_m = stl.Stl()  # Load stl
+    y_m = stl.Stl()  # Load stl
+    lattice = stl.Stl()  # Load stl
+    
+    for num1 in range (0, dimension.x):
+        x_m.join(unit_m.translate_x(displacement_factor.x))
+    
+    unit_m = x_m
+    for num2 in range (0, dimension.y):
+        y_m.join(unit_m.translate_y(displacement_factor.y))
+
+    unit_m = y_m
+    for num3 in range (0, dimension.z):
+        lattice.join(unit_m.translate_z(displacement_factor.z))
+
+    lattice.save_stl("lattice.stl", update_normals=True)
 
 
 def write_to_msh(mesh):
@@ -133,8 +145,8 @@ def main():
     unit_mesh.elements = read_elements()
     write_to_msh(unit_mesh)
 
-    val = dirname(dirname(abspath(__file__))) + "/Lattice-Structure-Computation-Program/scripts"
-    os.system(val + '/to_stl.bat output/msh/{} output/stl/{}'.format("unit.msh", "unit.stl"))
+    #val = dirname(dirname(abspath(__file__))) + "/Lattice-Structure-Computation-Program/scripts"
+    #os.system(val + '/to_stl.bat output/msh/{} output/stl/{}'.format("unit.msh", "unit.stl"))
 
     displacement_factor = direction_delta(unit_mesh.nodes)
     print(str(displacement_factor.x) + " " + str(displacement_factor.y) + " " + str(displacement_factor.z))
@@ -143,7 +155,7 @@ def main():
     dimension.y = int(input("y: "))
     dimension.z = int(input("z: "))
     start_time = time.time()
-    #construct_lattice(unit_mesh, total_nodes, displacement_factor, dimension)
+    construct_lattice(displacement_factor, dimension)
     print("\nruntime: " + str(time.time() - start_time))
 
 if __name__ == "__main__":
