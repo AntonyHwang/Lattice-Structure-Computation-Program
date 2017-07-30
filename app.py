@@ -88,23 +88,54 @@ def direction_delta(nodes):
     return Node(0, maxX - minX, maxY - minY, maxZ - minZ)
 
 def construct_lattice(displacement_factor, dimension):
+#Method1
+#    total_num = dimension.x * dimension.y * dimension.z
+#    count = 0
+#    unit_m = stl.Stl('output/stl/unit.stl')  # Load stl
+#    x_m = stl.Stl()  # Load stl
+#    y_m = stl.Stl()  # Load stl
+#    lattice = stl.Stl()  # Load stl
+#    
+#    for num1 in range (0, dimension.x):
+#        x_m.join(unit_m.translate_x(displacement_factor.x))
+#    
+#    unit_m = x_m
+#    for num2 in range (0, dimension.y):
+#        y_m.join(unit_m.translate_y(displacement_factor.y))
+#
+#    unit_m = y_m
+#    for num3 in range (0, dimension.z):
+#        lattice.join(unit_m.translate_z(displacement_factor.z))
+#
+#    lattice.save_stl("lattice.stl", update_normals=True)
+#####################################################################
+
+#Method2
     total_num = dimension.x * dimension.y * dimension.z
-    count = 0
+    count = 1
+    multiplier = 1
     unit_m = stl.Stl('output/stl/unit.stl')  # Load stl
-    x_m = stl.Stl()  # Load stl
+    x_m = unit_m  # Load stl
     y_m = stl.Stl()  # Load stl
     lattice = stl.Stl()  # Load stl
     
-    for num1 in range (0, dimension.x):
-        x_m.join(unit_m.translate_x(displacement_factor.x))
+    while count < dimension.x:
+        if count < (dimension.x / 2.0):
+            x_m.join(x_m.translate_x(displacement_factor.x * multiplier))
+            count *= multiplier
+        multiplier += 1
     
-    unit_m = x_m
-    for num2 in range (0, dimension.y):
-        y_m.join(unit_m.translate_y(displacement_factor.y))
+    unit_m.join(unit_m.translate_x(displacement_factor.x))
+    for num1 in range (0, dimension.x):
+        x_m.join(unit_m.translate_x(displacement_factor.x + displacement_factor.x))
 
-    unit_m = y_m
-    for num3 in range (0, dimension.z):
-        lattice.join(unit_m.translate_z(displacement_factor.z))
+    unit_m = x_m.join(x_m.translate_y(displacement_factor.y))
+    for num2 in range (0, dimension.y / 2):
+        y_m.join(unit_m.translate_y(displacement_factor.y + displacement_factor.y))
+
+    unit_m = y_m.join(y_m.translate_y(displacement_factor.z))
+    for num3 in range (0, dimension.z / 2):
+        lattice.join(unit_m.translate_z(displacement_factor.z + displacement_factor.z))
 
     lattice.save_stl("lattice.stl", update_normals=True)
 
@@ -136,12 +167,12 @@ def write_to_msh(mesh):
     # new_msh_file.write("$STOP")
     msh_file.close()
 
-def main():
+def generate(x, y, z):
     unit_mesh = Mesh
     dimension = Dimension
     unit_mesh.nodes = read_nodes()
     total_nodes = len(unit_mesh.nodes)
-    print("nodes per unit: {}".format(total_nodes))
+#    print("nodes per unit: {}".format(total_nodes))
     unit_mesh.elements = read_elements()
     write_to_msh(unit_mesh)
 
@@ -149,14 +180,15 @@ def main():
     #os.system(val + '/to_stl.bat output/msh/{} output/stl/{}'.format("unit.msh", "unit.stl"))
 
     displacement_factor = direction_delta(unit_mesh.nodes)
-    print(str(displacement_factor.x) + " " + str(displacement_factor.y) + " " + str(displacement_factor.z))
-    print("\ninput values for lattice structure")
-    dimension.x = int(input("x: "))
-    dimension.y = int(input("y: "))
-    dimension.z = int(input("z: "))
+#    print(str(displacement_factor.x) + " " + str(displacement_factor.y) + " " + str(displacement_factor.z))
+#    print("\ninput values for lattice structure")
+#    dimension.x = int(input("x: "))
+#    dimension.y = int(input("y: "))
+#    dimension.z = int(input("z: "))
+    dimension.x = x
+    dimension.y = y
+    dimension.z = z
     start_time = time.time()
     construct_lattice(displacement_factor, dimension)
-    print("\nruntime: " + str(time.time() - start_time))
+#    print("\nruntime: " + str(time.time() - start_time))
 
-if __name__ == "__main__":
-    main()
