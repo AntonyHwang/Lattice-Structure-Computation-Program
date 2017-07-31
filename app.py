@@ -112,30 +112,49 @@ def construct_lattice(displacement_factor, dimension):
 
 #Method2
     total_num = dimension.x * dimension.y * dimension.z
-    count = 1
+    count = 1.0
     multiplier = 1
     unit_m = stl.Stl('output/stl/unit.stl')  # Load stl
-    x_m = unit_m  # Load stl
+    x_m = stl.Stl()  # Load stl
     y_m = stl.Stl()  # Load stl
     lattice = stl.Stl()  # Load stl
     
+    x_m.join(unit_m)  # Load stl
     while count < dimension.x:
-        if count < (dimension.x / 2.0):
-            x_m.join(x_m.translate_x(displacement_factor.x * multiplier))
-            count *= multiplier
-        multiplier += 1
-    
-    unit_m.join(unit_m.translate_x(displacement_factor.x))
-    for num1 in range (0, dimension.x):
-        x_m.join(unit_m.translate_x(displacement_factor.x + displacement_factor.x))
+        if count <= (dimension.x / 2.0):
+            tmp_m = stl.Stl()  # Load stl
+            tmp_m.join(x_m).translate_x(displacement_factor.x * count)
+            x_m.join(tmp_m)
+            count *= 2
+        else:
+            x_m.join(unit_m.translate_x(displacement_factor.x * count))
+            count += 1
 
-    unit_m = x_m.join(x_m.translate_y(displacement_factor.y))
-    for num2 in range (0, dimension.y / 2):
-        y_m.join(unit_m.translate_y(displacement_factor.y + displacement_factor.y))
+    count = 1.0
+    unit_m.join(x_m)
+    y_m.join(x_m)
+    while count < dimension.y:
+        if count <= (dimension.y / 2.0):
+            tmp_m = stl.Stl()  # Load stl
+            tmp_m.join(y_m).translate_y(displacement_factor.y * count)
+            y_m.join(tmp_m)
+            count *= 2
+        else:
+            y_m.join(unit_m.translate_y(displacement_factor.y * count))
+            count += 1
 
-    unit_m = y_m.join(y_m.translate_y(displacement_factor.z))
-    for num3 in range (0, dimension.z / 2):
-        lattice.join(unit_m.translate_z(displacement_factor.z + displacement_factor.z))
+    count = 1.0
+    unit_m.join(y_m)
+    lattice.join(y_m)
+    while count < dimension.z:
+        if count <= (dimension.z / 2.0):
+            tmp_m = stl.Stl()  # Load stl
+            tmp_m.join(lattice).translate_z(displacement_factor.z * count)
+            lattice.join(tmp_m)
+            count *= 2
+        else:
+            lattice.join(unit_m.translate_z(displacement_factor.z * count))
+            count += 1
 
     lattice.save_stl("lattice.stl", update_normals=True)
 
@@ -190,5 +209,12 @@ def generate(x, y, z):
     dimension.z = z
     start_time = time.time()
     construct_lattice(displacement_factor, dimension)
-#    print("\nruntime: " + str(time.time() - start_time))
+    print("\nruntime: " + str(time.time() - start_time))
+
+if __name__ == "__main__":
+    dimension = Dimension
+    dimension.x = int(input("x: "))
+    dimension.y = int(input("y: "))
+    dimension.z = int(input("z: "))
+    generate(dimension.x, dimension.y, dimension.z)
 
