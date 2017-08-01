@@ -21,6 +21,12 @@ def group_lines(lines):
             break
     return lines
 
+def check_exist(n, list):
+    for node in list:
+        if n == node:
+            return True
+    return False
+
 #https://stackoverflow.com/questions/2486093/millions-of-3d-points-how-to-find-the-10-of-them-closest-to-a-given-point
 def get_line(line, nodes, boundary_nodes, start_node, p_idx, p_vec):
     line.append(start_node)
@@ -30,7 +36,7 @@ def get_line(line, nodes, boundary_nodes, start_node, p_idx, p_vec):
     ndx = d.argsort()
     #find nearest neighbour
     for num in range(1, 3):
-        if not nodes[ndx[num]] in boundary_nodes:
+        if not check_exist(nodes[ndx[num]], boundary_nodes):
             vec = nodes[ndx[num]] - point
             if vec == p_vec or p_idx == -1:
                 line.dv = vec
