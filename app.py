@@ -12,15 +12,14 @@ class Lattice(object):
         self.elements, self.nodes = elements, nodes
 
 class Line(object):
-    def __init__(self, dv, nodes):
-        self.dv, self.nodes = dv, nodes
-        self.idx = -1
+    def __init__(self, idx, dv, nodes):
+        self.idx, self.dv, self.nodes = -1, dv, nodes
     def toString(self):
-        return "vector: [" + str(self.dv[0]) + " " + str(self.dv[1]) + " " + str(self.dv[2]) + "]\tnodes " + str(self.nodes) 
+        return "vector: [" + str(self.dv[0]) + " " + str(self.dv[1]) + " " + str(self.dv[2]) + "]\tnodes "# + str(self.nodes)
     def __hash__(self):
         return hash(self.dv[0], self.dv[1], self.dv[2])
     def __eq__(self, other):
-        return self.dv[0] / other.dv[0] == self.dv[1] / other.dv[1] and self.dv[1] / other.dv[1] == self.dv[2] / other.dv[2] 
+        return self.dv[0] / other.dv[0] == self.dv[1] / other.dv[1] and self.dv[1] / other.dv[1] == self.dv[2] / other.dv[2]
     def append(self, node):
         self.nodes = np.append(self.nodes, node)
 
@@ -31,6 +30,10 @@ class Node(object):
         return hash(self.xyz[0], self.xyz[1], self.xyz[2])
     def __eq__(self, other):
         return self.xyz[0] == other.xyz[0] and self.xyz[1] == other.xyz[1] and self.xyz[2] == other.xyz[2]
+
+class Beam(object):
+    def __init__(self, idx, lines):
+      self.idx, self.lines = -1, lines
 
 def node_to_string(node):
     return str(node[0]) + "," + str(node[1]) + "," + str(node[2])
@@ -113,7 +116,7 @@ def read_msh(file):
     return nodes, elements
 
 def normal(element):
-    p1 = np.array([element[0].xyz[0], element[0].xyz[1], element[0].xyz[2]]) / math.sqrt((element[0].xyz[0] * element[0].xyz[0]) + (element[0].xyz[1] * element[0].xyz[1]) + (element[0].xyz[2] * element[0].xyz[2])) 
+    p1 = np.array([element[0].xyz[0], element[0].xyz[1], element[0].xyz[2]]) / math.sqrt((element[0].xyz[0] * element[0].xyz[0]) + (element[0].xyz[1] * element[0].xyz[1]) + (element[0].xyz[2] * element[0].xyz[2]))
     p2 = np.array([element[1].xyz[0], element[1].xyz[1], element[1].xyz[2]]) / math.sqrt((element[1].xyz[0] * element[1].xyz[0]) + (element[1].xyz[1] * element[1].xyz[1]) + (element[1].xyz[2] * element[1].xyz[2]))
     p3 = np.array([element[2].xyz[0], element[2].xyz[1], element[2].xyz[2]]) / math.sqrt((element[2].xyz[0] * element[2].xyz[0]) + (element[2].xyz[1] * element[2].xyz[1]) + (element[2].xyz[2] * element[2].xyz[2]))
 
@@ -162,7 +165,7 @@ def generate_msh(nodes, elements, x, y, z):
 
     x_delta = 0
     y_delta = 0
-    z_delta = 0    
+    z_delta = 0
     nodes_count = 0
 
     for num1 in range(0,x):
@@ -188,11 +191,11 @@ def generate_stl(nodes, elements, x, y, z):
 
     output = open("output/lattice.stl", 'w')
     output.write("solid Created by LatticeGenerator\n")
-    
+
     bar = progressbar.ProgressBar(max_value=(x*y*z))
 
-    x_delta = 0 
-    y_delta = 0 
+    x_delta = 0
+    y_delta = 0
     z_delta = 0
     count = 0
 
@@ -209,7 +212,7 @@ def generate_stl(nodes, elements, x, y, z):
 
                 for e in elements:
                     norm = normal(e)
-                    output.write("facet normal " + str(norm[0]) 
+                    output.write("facet normal " + str(norm[0])
                             + ' ' + str(norm[1])
                             + ' ' + str(norm[2]) + ' ' + '\n')
                     #Sprint(normal)
@@ -254,14 +257,14 @@ def main():
 
 
     lines = beam.lines([n for n in nodes if n not in boundry_nodes], boundry_nodes)
-    for line in lines:
-        print(line.toString())
+    # for line in lines:
+    #     print(line.toString())
     print("there are " + str(len(boundry_nodes)) + " out of " + str(len(nodes)) + " boundry nodes")
 
     #nodes = read_nodes()
     print("nodes per unit: {}".format(len(nodes)))
     #elements = read_elements(nodes)
-    
+
     print("\ninput values for lattice structure")
     x = int(input("x: "))
     y = int(input("y: "))
