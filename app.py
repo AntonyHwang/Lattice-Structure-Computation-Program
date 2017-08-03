@@ -6,6 +6,8 @@ import numpy as np
 import math
 import progressbar
 import beam
+import remap
+import gmsh_conversion as converter
 
 class Lattice(object):
     def __init__(self, elements, nodes):
@@ -31,9 +33,21 @@ class Node(object):
     def __eq__(self, other):
         return self.xyz[0] == other.xyz[0] and self.xyz[1] == other.xyz[1] and self.xyz[2] == other.xyz[2]
 
-class Beam(object):
-    def __init__(self, idx, lines):
-      self.idx, self.lines = -1, lines
+class Element(object):
+    def __init__(self, n1, n2, n3):
+        self.nodes = np.array([n1, n2, n3])
+        self.attributes = [2,2,0,1]
+    def __hash__(self):
+        return hash(self.attributes[3])
+    def __eq__(self,other):
+        return self.n1 == other.n1 and self.n2 == other.n2 and self.n3 == other.n3
+    def set_beam(self, beam_id):
+        self.attributes[3] = beam_id
+    def align_with_line(self, line):
+        self.set_beam(line.idx)
+    def attributes_string(self):
+        return str(self.attributes[0]) + ' ' + str(self.attributes[1]) + ' ' + str(self.attributes[2]) + ' ' + str(self.attributes[3])
+
 
 def node_to_string(node):
     return str(node[0]) + "," + str(node[1]) + "," + str(node[2])
@@ -70,10 +84,8 @@ def read_elements(nodes):
                 words = line.split()
                 if is_number(words[0]):
                     if not flag:
-                        #ELEMENT_ATTRIBUTES = words[1] + " " + words[2] + " " + words[3] + " " + words[4]
-                        ELEMENT_ATTRIBUTES = "2 2 3 4"
                         flag = True
-                    elements.append(np.array([nodes[int(words[6]) - 1], nodes[int(words[7]) - 1], nodes[int(words[8]) - 1]]))
+                    elements.append(Element(nodes[int(words[6]) - 1], nodes[int(words[7]) - 1], nodes[int(words[8]) - 1]))
     element_file.close()
     return elements
 
@@ -107,18 +119,18 @@ def read_msh(file):
                             reading_nodes = True
                     else:
                         if is_number(words[0]) and len(words) > 1:
-                            elements.append(np.array([nodes[int(words[len(words) - 3]) - 1],
+                            elements.append(Element(nodes[int(words[len(words) - 3]) - 1],
                                                     nodes[int(words[len(words) - 2]) - 1],
-                                                    nodes[int(words[len(words) - 1]) - 1]]))
+                                                    nodes[int(words[len(words) - 1]) - 1]))
                         elif words[0] == "$EndElements":
                             read_elements = False
     mesh.close()
     return nodes, elements
 
 def normal(element):
-    p1 = np.array([element[0].xyz[0], element[0].xyz[1], element[0].xyz[2]]) / math.sqrt((element[0].xyz[0] * element[0].xyz[0]) + (element[0].xyz[1] * element[0].xyz[1]) + (element[0].xyz[2] * element[0].xyz[2]))
-    p2 = np.array([element[1].xyz[0], element[1].xyz[1], element[1].xyz[2]]) / math.sqrt((element[1].xyz[0] * element[1].xyz[0]) + (element[1].xyz[1] * element[1].xyz[1]) + (element[1].xyz[2] * element[1].xyz[2]))
-    p3 = np.array([element[2].xyz[0], element[2].xyz[1], element[2].xyz[2]]) / math.sqrt((element[2].xyz[0] * element[2].xyz[0]) + (element[2].xyz[1] * element[2].xyz[1]) + (element[2].xyz[2] * element[2].xyz[2]))
+    p1 = np.array([element.nodes[0].xyz[0], element.nodes[0].xyz[1], element.nodes[0].xyz[2]]) / math.sqrt((element.nodes[0].xyz[0] * element.nodes[0].xyz[0]) + (element.nodes[0].xyz[1] * element.nodes[0].xyz[1]) + (element.nodes[0].xyz[2] * element.nodes[0].xyz[2]))
+    p2 = np.array([element.nodes[1].xyz[0], element.nodes[1].xyz[1], element.nodes[1].xyz[2]]) / math.sqrt((element.nodes[1].xyz[0] * element.nodes[1].xyz[0]) + (element.nodes[1].xyz[1] * element.nodes[1].xyz[1]) + (element.nodes[1].xyz[2] * element.nodes[1].xyz[2]))
+    p3 = np.array([element.nodes[2].xyz[0], element.nodes[2].xyz[1], element.nodes[2].xyz[2]]) / math.sqrt((element.nodes[2].xyz[0] * element.nodes[2].xyz[0]) + (element.nodes[2].xyz[1] * element.nodes[2].xyz[1]) + (element.nodes[2].xyz[2] * element.nodes[2].xyz[2]))
 
     u = p2 - p1
     v = p3 - p1
@@ -150,38 +162,39 @@ def max_xyz(nodes):
 
 # generate a .msh version of a lattice volume with the given unit value and x, y, and z dimensions
 def generate_msh(nodes, elements, x, y, z):
-    displacement_factor = direction_delta(nodes)
-    total_nodes = len(nodes)
+    pass
+    # displacement_factor = direction_delta(nodes)
+    # total_nodes = len(nodes)
 
-    output = open("output/lattice.msh", 'w')
+    # output = open("output/lattice.msh", 'w')
 
-    output.write("$MeshFormat\n")
-    # MESH FORMAT
-    output.write("2.2 0 8\n")
-    output.write("$EndMeshFormat\n$Nodes\n")
-    # WRITE NODES HERE
-    # NUM OF NODES
-    output.write(str(((x) * (y) * (z)) * total_nodes) + "\n")
+    # output.write("$MeshFormat\n")
+    # # MESH FORMAT
+    # output.write("2.2 0 8\n")
+    # output.write("$EndMeshFormat\n$Nodes\n")
+    # # WRITE NODES HERE
+    # # NUM OF NODES
+    # output.write(str(((x) * (y) * (z)) * total_nodes) + "\n")
 
-    x_delta = 0
-    y_delta = 0
-    z_delta = 0
-    nodes_count = 0
+    # x_delta = 0
+    # y_delta = 0
+    # z_delta = 0
+    # nodes_count = 0
 
-    for num1 in range(0,x):
-        x_delta += displacement_factor.xyz[0]
-        y_delta = 0
-        for num2 in range (0,y):
-            y_delta += displacement_factor.xyz[1]
-            z_delta = 0
-            for num3 in range(0,z):
-                z_delta += displacement_factor.xyz[2]
-                for n in model.nodes:
-                    output.write(str(n.idx + nodes_count) +
-                                 " " + str(n.xyz[0] + x_delta) +
-                                 " " + str(n.xyz[1] + y_delta) +
-                                 " " + str(n.xyz[2] + z_delta) + ' ')
-                nodes_count += total_nodes
+    # for num1 in range(0,x):
+    #     x_delta += displacement_factor.xyz[0]
+    #     y_delta = 0
+    #     for num2 in range (0,y):
+    #         y_delta += displacement_factor.xyz[1]
+    #         z_delta = 0
+    #         for num3 in range(0,z):
+    #             z_delta += displacement_factor.xyz[2]
+    #             for n in model.nodes:
+    #                 output.write(str(n.idx + nodes_count) +
+    #                              " " + str(n.xyz[0] + x_delta) +
+    #                              " " + str(n.xyz[1] + y_delta) +
+    #                              " " + str(n.xyz[2] + z_delta) + ' ')
+    #             nodes_count += total_nodes
 
 
 # generate a .stl version of a lattice volume with the given unit value and x, y, and z dimensions
@@ -217,15 +230,15 @@ def generate_stl(nodes, elements, x, y, z):
                             + ' ' + str(norm[2]) + ' ' + '\n')
                     #Sprint(normal)
                     output.write("\touter loop" + '\n')
-                    output.write("\t\tvertex " + str(e[0].xyz[0] + x_delta) +
-                                 ' ' + str(e[0].xyz[1] + y_delta) +
-                                 ' ' + str(e[0].xyz[2] + z_delta) + '\n')
-                    output.write("\t\tvertex " + str(e[1].xyz[0] + x_delta) +
-                                 ' ' + str(e[1].xyz[1] + y_delta) +
-                                 ' ' + str(e[1].xyz[2] + z_delta) + '\n')
-                    output.write("\t\tvertex " + str(e[2].xyz[0] + x_delta) +
-                                 ' ' + str(e[2].xyz[1] + y_delta) +
-                                 ' ' + str(e[2].xyz[2] + z_delta) + '\n')
+                    output.write("\t\tvertex " + str(e.nodes[0].xyz[0] + x_delta) +
+                                 ' ' + str(e.nodes[0].xyz[1] + y_delta) +
+                                 ' ' + str(e.nodes[0].xyz[2] + z_delta) + '\n')
+                    output.write("\t\tvertex " + str(e.nodes[1].xyz[0] + x_delta) +
+                                 ' ' + str(e.nodes[1].xyz[1] + y_delta) +
+                                 ' ' + str(e.nodes[1].xyz[2] + z_delta) + '\n')
+                    output.write("\t\tvertex " + str(e.nodes[2].xyz[0] + x_delta) +
+                                 ' ' + str(e.nodes[2].xyz[1] + y_delta) +
+                                 ' ' + str(e.nodes[2].xyz[2] + z_delta) + '\n')
                     output.write("\tendloop" + '\n')
                     output.write("endfacet" + '\n')
     output.write("endsolid Created by LatticeGenerator")
@@ -240,6 +253,8 @@ def find_m_point(max_values, displacement_factor):
 def main():
     nodes = []
     elements = []
+    # nodes = read_nodes()
+    # elements = read_elements(nodes)
     nodes, elements = read_msh("lattice")
     max_values = max_xyz(nodes)
     boundry_nodes = []
@@ -266,10 +281,12 @@ def main():
     mid_point = find_m_point(max_values, displacement_factor)
 
     lines = beam.lines([n for n in nodes if n not in boundry_nodes], boundry_nodes, mid_point)
-    for line in lines:
-        print(line.toString())
 
-    print(len(lines))
+    for line in lines:
+        for e in elements:
+            if e.nodes[0] in line.nodes and e.nodes[1] in line.nodes and e.nodes[2] in line.nodes:
+                e.align_with_line(line)
+
     print("there are " + str(len(boundry_nodes)) + " out of " + str(len(nodes)) + " boundry nodes")
 
     #nodes = read_nodes()
@@ -282,6 +299,9 @@ def main():
     z = int(input("z: "))
     start_time = time.time()
     generate_stl(nodes, elements, x, y, z)
+
+    print("\n\nConverting .stl to .msh...")
+    converter.stl_to_msh('output\\lattice', 'output\\lattice')
     print("\nruntime: " + str(time.time() - start_time))
 
 if __name__ == "__main__":

@@ -17,8 +17,8 @@ def group_lines(lines):
     for num1 in range (0, len(lines)):
         if lines[num1].idx == -1:
           for num2 in range(0, len(lines)):
-              print("")
-              print(num1, num2)
+              #print("")
+              # print(num1, num2)
               if num1 != num2:
                   if (np.array_equal(lines[num1].dv,lines[num2].dv)):
                       if lines[num1].idx == -1:
