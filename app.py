@@ -15,7 +15,7 @@ class Line(object):
     def __init__(self, idx, dv, nodes):
         self.idx, self.dv, self.nodes = -1, dv, nodes
     def toString(self):
-        return "vector: [" + str(self.dv[0]) + " " + str(self.dv[1]) + " " + str(self.dv[2]) + "]\tnodes "# + str(self.nodes)
+        return "vector: [" + str(self.dv[0]) + " " + str(self.dv[1]) + " " + str(self.dv[2]) + "]\tidx: ["+ str(self.idx) +"]\tnodes "# + str(self.nodes)
     def __hash__(self):
         return hash(self.dv[0], self.dv[1], self.dv[2])
     def __eq__(self, other):
@@ -230,6 +230,12 @@ def generate_stl(nodes, elements, x, y, z):
                     output.write("endfacet" + '\n')
     output.write("endsolid Created by LatticeGenerator")
 
+def find_m_point(max_values, displacement_factor):
+    m_point = np.array([0, 0, 0])
+    m_point[0] = max_values[0] - displacement_factor.xyz[0] / 2
+    m_point[1] = max_values[1] - displacement_factor.xyz[1] / 2
+    m_point[2] = max_values[2] - displacement_factor.xyz[2] / 2
+    return m_point
 
 def main():
     nodes = []
@@ -256,9 +262,14 @@ def main():
             boundry_nodes.append(n)
 
 
-    lines = beam.lines([n for n in nodes if n not in boundry_nodes], boundry_nodes)
-    # for line in lines:
-    #     print(line.toString())
+
+    mid_point = find_m_point(max_values, displacement_factor)
+
+    lines = beam.lines([n for n in nodes if n not in boundry_nodes], boundry_nodes, mid_point)
+    for line in lines:
+        print(line.toString())
+
+    print(len(lines))
     print("there are " + str(len(boundry_nodes)) + " out of " + str(len(nodes)) + " boundry nodes")
 
     #nodes = read_nodes()

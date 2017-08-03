@@ -14,20 +14,22 @@ def norm(vec):
 #group lines by comapring dv
 def group_lines(lines):
     idx_num = 0
-    for num1 in range (1, len(lines) + 1):
-        #print(lines[num1])
+    for num1 in range (0, len(lines)):
         if lines[num1].idx == -1:
-            for num2 in range(0, len(lines)):
-                if lines[num1].dv == lines[num2].dv:
-                    if lines[num2].dv == -1:
-                        #generate new idx number
-                        idx_num += 1
-                        lines[num1].idx = idx_num
-                    else:
-                        lines[num1].idx == lines[num2].idx
-                    break
-        else:
-            break
+          for num2 in range(0, len(lines)):
+              print("")
+              print(num1, num2)
+              if num1 != num2:
+                  if (np.array_equal(lines[num1].dv,lines[num2].dv)):
+                      if lines[num1].idx == -1:
+                          if lines[num2].idx == -1:
+                              idx_num += 1
+                              lines[num1].idx = idx_num
+                              lines[num2].idx = idx_num
+                          else:
+                              lines[num1].idx = lines[num2].idx
+                      else:
+                          lines[num2].idx = lines[num1].idx
     return lines
 
 def check_exist(n, l):
@@ -38,46 +40,32 @@ def check_exist(n, l):
             return True
     return False
 
-def get_next_node(nodes, node_list, l_vec, dist, p_node, status):
-    stop = 0
-    #print(" ")
-    #print("l_vec:")
-    #print(l_vec)
+def get_next_node(mid_point, nodes, node_list, l_vec, dist, p_node, status):
     d = [((n.xyz - p_node) ** 2).sum() for n in nodes]
     ndx = np.argsort(d)
     n_node = nodes[ndx[0]].xyz
-    #print(len(ndx))
     vec = n_node - p_node
-    #print("vec:")
-    #print(vec)
-    a = (np.cross(vec, l_vec) == np.array([0, 0, 0])).all()
+    m_vec = mid_point - p_node
+    on_line = (np.cross(vec, l_vec) == np.array([0, 0, 0])).all()
     n_dist = np.linalg.norm(vec)
-    # print(dist)
-    # print(n_dist)
-    # print(" ")
-    if n_dist > dist + 5:
-        stop = 1
-    if (a):
+    m_dist = np.linalg.norm(m_vec)
+    if (on_line and n_dist <= m_dist):
         status = 1
         node_list.append(n_node)
         new_nodes = np.delete(nodes, ndx[0])
-        get_next_node(new_nodes, node_list, l_vec, dist, n_node, status)
+        get_next_node(mid_point, new_nodes, node_list, l_vec, dist, n_node, status)
 
-    elif(status == 1 and stop == 1):
-        #print(node_list[1], node_list[2], node_list[3])
-        # print("")
-        # print(node_list[1], node_list[2])
-        return node_list
-
-    else:
+    elif(not on_line):
         new_nodes = np.delete(nodes, ndx[0])
-        get_next_node(new_nodes, node_list, l_vec, dist, p_node, status)
+        get_next_node(mid_point, new_nodes, node_list, l_vec, dist, p_node, status)
 
+    #print("")
+    #print(node_list)
+    return node_list
 
 #https://stackoverflow.com/questions/2486093/millions-of-3d-points-how-to-find-the-10-of-them-closest-to-a-given-point
-def get_line(nodes, start_node):
+def get_line(nodes, start_node, mid_point):
     node_list = []
-    node_list2 = []
     line = Line(-1, np.array([]), [])
     node = start_node
     node_list.append(node)
@@ -88,18 +76,20 @@ def get_line(nodes, start_node):
     dist = np.linalg.norm(vec)
     line.dv = vec
     node_list.append(n_node)
+    #print(node_list)
     new_nodes = np.delete(nodes, ndx[0])
-    node_list2 = (get_next_node(new_nodes, node_list, vec, dist, n_node, 0))
-    print(node_list2)
+    node_list = (get_next_node(mid_point, new_nodes, node_list, vec, dist, n_node, 0))
+    # print(node_list)
+    # print("")
     #get_next_node(new_nodes, node_list, vec, dist, n_node, 0)
     return line
 
 #https://stackoverflow.com/questions/2486093/millions-of-3d-points-how-to-find-the-10-of-them-closest-to-a-given-point
-def lines(nodes, boundary_nodes):
+def lines(nodes, boundary_nodes, mid_point):
     lines = []
     count =0
     for node in boundary_nodes:
         #print(node.xyz)
-        lines.append(get_line(nodes, node.xyz))
-    #lines = group_lines(lines)
+        lines.append(get_line(nodes, node.xyz, mid_point))
+    lines = group_lines(lines)
     return lines
