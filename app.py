@@ -196,19 +196,22 @@ def generate_msh(nodes, elements, x, y, z):
     nodes_count = 0
 
     for num1 in range(0,x):
-        x_delta += displacement_factor.xyz[0]
+        
         y_delta = 0
         for num2 in range (0,y):
-            y_delta += displacement_factor.xyz[1]
+            
             z_delta = 0
             for num3 in range(0,z):
-                z_delta += displacement_factor.xyz[2]
+                
                 for n in model.nodes:
                     output.write(str(n.idx + nodes_count) +
                                  " " + str(n.xyz[0] + x_delta) +
                                  " " + str(n.xyz[1] + y_delta) +
                                  " " + str(n.xyz[2] + z_delta) + ' ')
                 nodes_count += total_nodes
+                z_delta += displacement_factor.xyz[2]
+            y_delta += displacement_factor.xyz[1]
+        x_delta += displacement_factor.xyz[0]
 
 
 
@@ -230,13 +233,13 @@ def generate_stl(nodes, elements, x, y, z):
 
     for curr_x in range(0,x):
         y_delta = 0
-        x_delta += displacement_factor.xyz[0]
+        
         for curr_y in range(0,y):
             z_delta = 0
-            y_delta += displacement_factor.xyz[1]
+            
             for curr_z in range(0,z):
                 count += 1
-                z_delta += displacement_factor.xyz[2]
+                
                 bar.update(count)
 
                 for e in elements:
@@ -257,6 +260,9 @@ def generate_stl(nodes, elements, x, y, z):
                                  ' ' + str(e.nodes[2].xyz[2] + z_delta) + '\n')
                     output.write("\tendloop" + '\n')
                     output.write("endfacet" + '\n')
+                z_delta += displacement_factor.xyz[2]
+            y_delta += displacement_factor.xyz[1]
+        x_delta += displacement_factor.xyz[0]
     output.write("endsolid Created by LatticeGenerator")
 
 def find_m_point(max_values, displacement_factor):

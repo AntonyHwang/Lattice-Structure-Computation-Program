@@ -20,7 +20,7 @@ def write_properties_on_mesh(mesh_file, elements, total_nodes, x = 1, y = 1, z =
 			if i >= start_point:
 				output.write(line.replace('2 2 0 1', elements[count].attributes_string()))
 				count += 1
-				if count > len(elements):
+				if count >= len(elements):
 					count = 0
 			else:
 				output.write(line)
