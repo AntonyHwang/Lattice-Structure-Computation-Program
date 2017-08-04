@@ -44,7 +44,8 @@ class Element(object):
     def set_beam(self, beam_id):
         self.attributes[3] = beam_id
     def align_with_line(self, line):
-        self.set_beam(line.idx)
+        self.attributes[3] = line.idx
+        print("new attributes: " + self.attributes_string)
     def attributes_string(self):
         return str(self.attributes[0]) + ' ' + str(self.attributes[1]) + ' ' + str(self.attributes[2]) + ' ' + str(self.attributes[3])
 
@@ -162,39 +163,39 @@ def max_xyz(nodes):
 
 # generate a .msh version of a lattice volume with the given unit value and x, y, and z dimensions
 def generate_msh(nodes, elements, x, y, z):
-    pass
-    # displacement_factor = direction_delta(nodes)
-    # total_nodes = len(nodes)
+    displacement_factor = direction_delta(nodes)
+    total_nodes = len(nodes)
 
-    # output = open("output/lattice.msh", 'w')
+    output = open("output/lattice.msh", 'w')
 
-    # output.write("$MeshFormat\n")
-    # # MESH FORMAT
-    # output.write("2.2 0 8\n")
-    # output.write("$EndMeshFormat\n$Nodes\n")
-    # # WRITE NODES HERE
-    # # NUM OF NODES
-    # output.write(str(((x) * (y) * (z)) * total_nodes) + "\n")
+    output.write("$MeshFormat\n")
+    # MESH FORMAT
+    output.write("2.2 0 8\n")
+    output.write("$EndMeshFormat\n$Nodes\n")
+    # WRITE NODES HERE
+    # NUM OF NODES
+    output.write(str(((x) * (y) * (z)) * total_nodes) + "\n")
 
-    # x_delta = 0
-    # y_delta = 0
-    # z_delta = 0
-    # nodes_count = 0
+    x_delta = 0
+    y_delta = 0
+    z_delta = 0
+    nodes_count = 0
 
-    # for num1 in range(0,x):
-    #     x_delta += displacement_factor.xyz[0]
-    #     y_delta = 0
-    #     for num2 in range (0,y):
-    #         y_delta += displacement_factor.xyz[1]
-    #         z_delta = 0
-    #         for num3 in range(0,z):
-    #             z_delta += displacement_factor.xyz[2]
-    #             for n in model.nodes:
-    #                 output.write(str(n.idx + nodes_count) +
-    #                              " " + str(n.xyz[0] + x_delta) +
-    #                              " " + str(n.xyz[1] + y_delta) +
-    #                              " " + str(n.xyz[2] + z_delta) + ' ')
-    #             nodes_count += total_nodes
+    for num1 in range(0,x):
+        x_delta += displacement_factor.xyz[0]
+        y_delta = 0
+        for num2 in range (0,y):
+            y_delta += displacement_factor.xyz[1]
+            z_delta = 0
+            for num3 in range(0,z):
+                z_delta += displacement_factor.xyz[2]
+                for n in model.nodes:
+                    output.write(str(n.idx + nodes_count) +
+                                 " " + str(n.xyz[0] + x_delta) +
+                                 " " + str(n.xyz[1] + y_delta) +
+                                 " " + str(n.xyz[2] + z_delta) + ' ')
+                nodes_count += total_nodes
+
 
 
 # generate a .stl version of a lattice volume with the given unit value and x, y, and z dimensions
@@ -284,8 +285,9 @@ def main():
 
     for line in lines:
         for e in elements:
-            if e.nodes[0] in line.nodes and e.nodes[1] in line.nodes and e.nodes[2] in line.nodes:
+            if (e.nodes[0] in line.nodes and e.nodes[1] in line.nodes) or (e.nodes[1] in line.nodes and e.nodes[2] in line.nodes):
                 e.align_with_line(line)
+
 
     print("there are " + str(len(boundry_nodes)) + " out of " + str(len(nodes)) + " boundry nodes")
 
@@ -302,6 +304,9 @@ def main():
 
     print("\n\nConverting .stl to .msh...")
     converter.stl_to_msh('output\\lattice', 'output\\lattice')
+
+    print("\n\nAssigning elements to beams...")
+    remap.write_properties_on_mesh('output/lattice',elements, len(nodes), x, y, z)
     print("\nruntime: " + str(time.time() - start_time))
 
 if __name__ == "__main__":
