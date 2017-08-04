@@ -31,7 +31,13 @@ class Node(object):
     def __hash__(self):
         return hash(self.xyz[0], self.xyz[1], self.xyz[2])
     def __eq__(self, other):
-        return self.xyz[0] == other.xyz[0] and self.xyz[1] == other.xyz[1] and self.xyz[2] == other.xyz[2]
+        try:
+            return (self.xyz[0] == other.xyz[0] and self.xyz[1] == other.xyz[1] and self.xyz[2] == other.xyz[2])
+        except:
+            try:
+                return self.xyz[0] == other[0] and self.xyz[1] == other[1] and self.xyz[2] == other[2]
+            except:
+                raise TypeError('Cannot compare type \'' + str(type(other)) + '\' with \'Node\' type')
 
 class Element(object):
     def __init__(self, n1, n2, n3):
@@ -45,7 +51,7 @@ class Element(object):
         self.attributes[3] = beam_id
     def align_with_line(self, line):
         self.attributes[3] = line.idx
-        print("new attributes: " + self.attributes_string)
+        #print("new attributes: " + self.attributes_string())
     def attributes_string(self):
         return str(self.attributes[0]) + ' ' + str(self.attributes[1]) + ' ' + str(self.attributes[2]) + ' ' + str(self.attributes[3])
 
@@ -291,10 +297,10 @@ def main():
 
     beams = beam.beams([n for n in nodes if n not in boundry_nodes], boundry_nodes, mid_point)
 
-    # for beam_n in beams:
-    #     for e in elements:
-    #         if (e.nodes[0] in beam_n.nodes and e.nodes[1] in beam_n.nodes) or (e.nodes[0] in beam_n.nodes and e.nodes[2] in beam_n.nodes) or (e.nodes[1] in beam_n.nodes and e.nodes[2] in beam_n.nodes):
-    #             e.align_with_line(beam)
+    for beam_n in beams:
+        for e in elements:
+            if (e.nodes[0] in beam_n.nodes and e.nodes[1] in beam_n.nodes) or (e.nodes[0] in beam_n.nodes and e.nodes[2] in beam_n.nodes) or (e.nodes[1] in beam_n.nodes and e.nodes[2] in beam_n.nodes):
+                e.align_with_line(beam_n)
 
 
     print("there are " + str(len(boundry_nodes)) + " out of " + str(len(nodes)) + " boundry nodes")

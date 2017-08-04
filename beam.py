@@ -92,12 +92,10 @@ def beams(nodes, boundary_nodes, mid_point):
         lines.append(get_line(nodes, node.xyz, mid_point))
     lines = group_lines(lines)
 
-    # for line in lines:
-    #   print(line.idx)
-
     for num in range(0, len(lines)):
         if lines[num].idx != -1:
             beam = Beam(lines[num].idx, [])
+            #print(type(lines[num].nodes[0]))
             beam.nodes.extend(lines[num].nodes)
             for num2 in range(0, len(lines)):
                 # print(lines[num].idx, lines[num2].idx)
@@ -106,14 +104,11 @@ def beams(nodes, boundary_nodes, mid_point):
                     #add nodes
                     lines[num2].idx = -1
                     beam.nodes.extend(lines[num2].nodes)
-                    print(lines[num2].nodes)
+                    # print(lines[num2].nodes)
             lines[num].idx = -1
-            # print("")
+           #print(beam.idx)
             beams.append(beam)
 
-    for beam in beams:
-      # print beam.idx
-      print len(beam.nodes)
     return beams
 
 
