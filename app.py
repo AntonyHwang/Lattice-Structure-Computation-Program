@@ -49,6 +49,14 @@ class Element(object):
     def attributes_string(self):
         return str(self.attributes[0]) + ' ' + str(self.attributes[1]) + ' ' + str(self.attributes[2]) + ' ' + str(self.attributes[3])
 
+class Beam(object):
+      def __init__(self, idx, nodes):
+          self.idx, self.nodes = idx, nodes
+      def append(self, node):
+        self.nodes = np.append(self.nodes, node)
+      def toString(self):
+        return "idx: [" + str(self.idx) + "]\tnodes: [" + str(self.nodes) + "]\tnodes " + str(self.nodes)
+
 
 def node_to_string(node):
     return str(node[0]) + "," + str(node[1]) + "," + str(node[2])
@@ -281,12 +289,12 @@ def main():
 
     mid_point = find_m_point(max_values, displacement_factor)
 
-    lines = beam.lines([n for n in nodes if n not in boundry_nodes], boundry_nodes, mid_point)
+    beams = beam.beams([n for n in nodes if n not in boundry_nodes], boundry_nodes, mid_point)
 
-    for line in lines:
-        for e in elements:
-            if (e.nodes[0] in line.nodes and e.nodes[1] in line.nodes) or (e.nodes[1] in line.nodes and e.nodes[2] in line.nodes):
-                e.align_with_line(line)
+    # for beam_n in beams:
+    #     for e in elements:
+    #         if (e.nodes[0] in beam_n.nodes and e.nodes[1] in beam_n.nodes) or (e.nodes[0] in beam_n.nodes and e.nodes[2] in beam_n.nodes) or (e.nodes[1] in beam_n.nodes and e.nodes[2] in beam_n.nodes):
+    #             e.align_with_line(beam)
 
 
     print("there are " + str(len(boundry_nodes)) + " out of " + str(len(nodes)) + " boundry nodes")

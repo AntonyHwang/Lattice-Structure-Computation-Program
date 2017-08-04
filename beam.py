@@ -1,7 +1,7 @@
 import numpy as np
 import math
 import pprint
-from app import Line, Node
+from app import Line, Node, Beam
 
 def norm(vec):
     magnitude = np.linalg.norm(vec)
@@ -82,14 +82,43 @@ def get_line(nodes, start_node, mid_point):
     # print(node_list)
     # print("")
     #get_next_node(new_nodes, node_list, vec, dist, n_node, 0)
+    line.nodes = node_list
     return line
 
-#https://stackoverflow.com/questions/2486093/millions-of-3d-points-how-to-find-the-10-of-them-closest-to-a-given-point
-def lines(nodes, boundary_nodes, mid_point):
+def beams(nodes, boundary_nodes, mid_point):
     lines = []
-    count =0
+    beams = []
     for node in boundary_nodes:
-        #print(node.xyz)
         lines.append(get_line(nodes, node.xyz, mid_point))
     lines = group_lines(lines)
-    return lines
+
+    # for line in lines:
+    #   print(line.idx)
+
+    for num in range(0, len(lines)):
+        if lines[num].idx != -1:
+            beam = Beam(lines[num].idx, [])
+            beam.nodes.extend(lines[num].nodes)
+            for num2 in range(0, len(lines)):
+                # print(lines[num].idx, lines[num2].idx)
+                if num != num2 and lines[num].idx == lines[num2].idx:
+                    # print("reached")
+                    #add nodes
+                    lines[num2].idx = -1
+                    beam.nodes.extend(lines[num2].nodes)
+                    print(lines[num2].nodes)
+            lines[num].idx = -1
+            # print("")
+            beams.append(beam)
+
+    for beam in beams:
+      # print beam.idx
+      print len(beam.nodes)
+    return beams
+
+
+
+
+
+
+
