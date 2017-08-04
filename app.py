@@ -225,6 +225,7 @@ def generate_stl(nodes, elements, x, y, z):
     x_delta = 0
     y_delta = 0
     z_delta = 0
+
     count = 0
 
     for curr_x in range(0,x):
@@ -299,7 +300,8 @@ def main():
 
     for beam_n in beams:
         for e in elements:
-            if (e.nodes[0] in beam_n.nodes and e.nodes[1] in beam_n.nodes) or (e.nodes[0] in beam_n.nodes and e.nodes[2] in beam_n.nodes) or (e.nodes[1] in beam_n.nodes and e.nodes[2] in beam_n.nodes):
+            #if (e.nodes[0] in beam_n.nodes and e.nodes[1] in beam_n.nodes) or (e.nodes[0] in beam_n.nodes and e.nodes[2] in beam_n.nodes) or (e.nodes[1] in beam_n.nodes and e.nodes[2] in beam_n.nodes):
+            if e.nodes[0] in beam_n.nodes and e.nodes[1] in beam_n.nodes and e.nodes[2] in beam_n.nodes:
                 e.align_with_line(beam_n)
 
 

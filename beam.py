@@ -20,7 +20,7 @@ def group_lines(lines):
               #print("")
               # print(num1, num2)
               if num1 != num2:
-                  if (np.array_equal(lines[num1].dv,lines[num2].dv)):
+                  if (np.array_equal(norm(lines[num1].dv),norm(lines[num2].dv))):
                       if lines[num1].idx == -1:
                           if lines[num2].idx == -1:
                               idx_num += 1
