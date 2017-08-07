@@ -228,7 +228,7 @@ def generate_stl(nodes, elements, x, y, z):
     
     # Progressbar Variables
     count = 0
-    fraction = (x * y * z) * 0.05 # CHANGE FRACTION AT THE END TO MAKE PROGRESSBAR SMOOTHER
+    fraction = (x * y * z) * 0.01 # CHANGE FRACTION AT THE END TO MAKE PROGRESSBAR SMOOTHER
 
     # tracks the difference in each direction between current written shape and original unit
     x_delta = 0
