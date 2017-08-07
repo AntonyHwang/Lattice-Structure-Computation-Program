@@ -35,13 +35,13 @@ until finished
 End with an example of getting some data out of the system or using it for a little demo.
 
 
-Run the program by running:
+Run the program by running in the project directory:
 
 ```
 python app.py
 ```
 
-in the project directory. Output files are placed in lattice\output in .stl and .msh format
+Output files are placed in lattice\output in .stl and .msh format
 
 ## Running the tests
 
