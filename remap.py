@@ -13,12 +13,16 @@ def write_properties_on_mesh(mesh_file, elements, total_nodes, x = 1, y = 1, z =
 	total_elements = (x*y*z) * len(elements)
 	reading_elements = False
 	count = 0
-	element_idx = 1
+	Node = False
 
 	with open(mesh_file + '.msh', 'r') as mesh, open(mesh_file + '1.msh', 'w') as output:
 		print("Info\t: Writing Nodes...")
-		print("Info\t: " + str(x * y * z * total_nodes) + " nodes in mesh")
 		for i, line in enumerate(mesh):
+			if Node:
+				print("Info\t: " + line.strip() + " nodes in mesh")
+				Node = False
+			if "$Nodes" in line:
+				Node = True
 			if "$Elements" in line:
 				print("Info\t: Done Writing Nodes")
 				print("Info\t: Writing Elements...")
