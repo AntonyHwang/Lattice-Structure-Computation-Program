@@ -43,5 +43,5 @@ All test outputs are written in `output\test_output.txt`
 
 ## Authors
 
-* **Timothy Lu** - *Initial work* - [timothylu](https://github.com/timothylu)
-* **Antony Hwang** - *Initial work* - [AntonyHwang](https://github.com/AntonyHwang)
+* **Timothy Lu** - [timothylu](https://github.com/timothylu)
+* **Antony Hwang** - [AntonyHwang](https://github.com/AntonyHwang)
