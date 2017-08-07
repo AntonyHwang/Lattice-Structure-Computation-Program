@@ -18,24 +18,7 @@ GMSH installed and added to PATH
 
 ### Installing
 
-A step by step series of examples that tell you have to get a development env running
-
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
-
-```
-until finished
-```
-
-End with an example of getting some data out of the system or using it for a little demo.
-
-
-Run the program by running in the project directory:
+Run Lattice Generation by running in the project directory:
 
 ```
 python app.py
@@ -46,9 +29,16 @@ Output files are placed in lattice\output in .stl and .msh format
 ## Running the tests
 
 Go to the directory and run:
+
 ```
 python unittest.py
 ```
+
+To test different values, change the *x,y,z* values in `individual_test()`. 
+
+To run a general set of unit tests,  replace `individual_test(...)` with `unitTest(nodes, elements, displacement_factor)`.
+
+All test outputs are written in `output\test_output.txt`
 
 ## Authors
 
