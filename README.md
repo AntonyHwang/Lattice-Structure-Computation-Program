@@ -31,7 +31,7 @@ Output files are placed in lattice\output in .stl and .msh format
 Go to the directory and run:
 
 ```
-python unittest.py
+python unit_test.py
 ```
 
 To test different values, change the *x,y,z* values in `individual_test()`. 
