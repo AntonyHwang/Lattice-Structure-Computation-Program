@@ -1,6 +1,7 @@
 import app
 import sys
 import os
+import time
 
 # alters elements to have the correct beam_id
 def align_line_and_element(elements, nodes, id):
@@ -10,6 +11,8 @@ def align_line_and_element(elements, nodes, id):
 
 # rewrite the properties on a mesh, lattice
 def write_properties_on_mesh(mesh_file, elements, total_nodes, num_of_beams, x = 1, y = 1, z = 1):
+	print("Info\t: Started on " + time.strftime("%c"))
+	
 	total_elements = (x*y*z) * len(elements)
 	reading_elements = False
 	count = 0
@@ -47,6 +50,7 @@ def write_properties_on_mesh(mesh_file, elements, total_nodes, num_of_beams, x =
 
 	os.remove(mesh_file + '.msh')
 	os.rename(mesh_file + '1.msh', mesh_file + '.msh')
+	print("Info\t: Finished on " + time.strftime("%c"))
 
 if __name__ == "__main__":
 	pass
