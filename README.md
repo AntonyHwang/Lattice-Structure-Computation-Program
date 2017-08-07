@@ -11,6 +11,7 @@ These instructions will get you a copy of the project up and running on your loc
 What things you need to install the software and how to install them
 
 ```
+python 3.6
 pip install numpy
 pip install progressbar2
 GMSH installed and added to PATH
@@ -42,5 +43,5 @@ All test outputs are written in `output\test_output.txt`
 
 ## Authors
 
-* **Timothy Lu** - *Initial work* - [timothylu](https://github.com/timothylu)
-* **Antony Hwang** - *Initial work* - [AntonyHwang](https://github.com/AntonyHwang)
+* **Timothy Lu** - [timothylu](https://github.com/timothylu)
+* **Antony Hwang** - [AntonyHwang](https://github.com/AntonyHwang)
