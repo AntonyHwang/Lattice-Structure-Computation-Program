@@ -11,6 +11,7 @@ These instructions will get you a copy of the project up and running on your loc
 What things you need to install the software and how to install them
 
 ```
+python 3.6
 pip install numpy
 pip install progressbar2
 GMSH installed and added to PATH
