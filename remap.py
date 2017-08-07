@@ -13,6 +13,7 @@ def write_properties_on_mesh(mesh_file, elements, total_nodes, x = 1, y = 1, z =
 	total_elements = (x*y*z) * len(elements)
 	reading_elements = False
 	count = 0
+	multiplier = 1
 	Node = False
 
 	with open(mesh_file + '.msh', 'r') as mesh, open(mesh_file + '1.msh', 'w') as output:
@@ -33,9 +34,10 @@ def write_properties_on_mesh(mesh_file, elements, total_nodes, x = 1, y = 1, z =
 					reading_elements = False
 				# print(line + '\t' +  str(count))
 				if '2 2 0 1' in line:
-					output.write(line.replace('2 2 0 1', elements[count].attributes_string()))
+					output.write(line.replace('2 2 0 1', str(elements[count].attributes[0]) + ' '  + str(elements[count].attributes[1]) + ' ' + str(elements[count].attributes[2]) + ' ' + str(elements[count].attributes[3] + 6 * multiplier)))
 					count += 1
 					if count >= len(elements):
+						multiplier += 1
 						count = 0
 				else:
 					output.write(line)
