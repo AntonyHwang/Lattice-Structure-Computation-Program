@@ -176,6 +176,7 @@ def max_xyz(nodes):
     return [max_x,max_y,max_z]
 
 # generate a .msh version of a lattice volume with the given unit value and x, y, and z dimensions
+# DEPRECIATED. DOES NOT WORK
 def generate_msh(nodes, elements, x, y, z):
     displacement_factor = direction_delta(nodes)
     total_nodes = len(nodes)
@@ -224,12 +225,15 @@ def generate_stl(nodes, elements, x, y, z):
     output.write("solid Created by LatticeGenerator\n")
 
     bar = progressbar.ProgressBar(max_value=(x*y*z))
+    
+    # Progressbar Variables
+    count = 0
+    fraction = (x * y * z) * 0.05 # CHANGE FRACTION AT THE END TO MAKE PROGRESSBAR SMOOTHER
 
+    # tracks the difference in each direction between current written shape and original unit
     x_delta = 0
     y_delta = 0
     z_delta = 0
-
-    count = 0
 
     for curr_x in range(0,x):
         y_delta = 0
@@ -239,15 +243,15 @@ def generate_stl(nodes, elements, x, y, z):
             
             for curr_z in range(0,z):
                 count += 1
-                
-                bar.update(count)
+                if count % fraction <= 1:
+                    bar.update(count)
 
                 for e in elements:
                     norm = normal(e)
                     output.write("facet normal " + str(norm[0])
                             + ' ' + str(norm[1])
                             + ' ' + str(norm[2]) + ' ' + '\n')
-                    #Sprint(normal)
+                    # print(normal)
                     output.write("\touter loop" + '\n')
                     output.write("\t\tvertex " + str(e.nodes[0].xyz[0] + x_delta) +
                                  ' ' + str(e.nodes[0].xyz[1] + y_delta) +
@@ -265,26 +269,10 @@ def generate_stl(nodes, elements, x, y, z):
         x_delta += displacement_factor.xyz[0]
     output.write("endsolid Created by LatticeGenerator")
 
-def find_m_point(max_values, displacement_factor):
-    m_point = np.array([0, 0, 0])
-    m_point[0] = max_values[0] - displacement_factor.xyz[0] / 2
-    m_point[1] = max_values[1] - displacement_factor.xyz[1] / 2
-    m_point[2] = max_values[2] - displacement_factor.xyz[2] / 2
-    return m_point
-
-def main():
-    nodes = []
-    elements = []
-    # nodes = read_nodes()
-    # elements = read_elements(nodes)
-    nodes, elements = read_msh("lattice")
+def find_boundries(nodes):
     max_values = max_xyz(nodes)
     boundry_nodes = []
     displacement_factor = direction_delta(nodes)
-    count = 0
-    non_boundry = []
-
-    # FIND BOUNDRY NODES
     nodes.sort(key=lambda n:n.xyz[0])
     for n in nodes:
         if n.xyz[0] == (max_values[0] - displacement_factor.xyz[0]) or n.xyz[0] == max_values[0]:
@@ -298,7 +286,23 @@ def main():
         if n.xyz[2] == (max_values[2] - displacement_factor.xyz[2]) or n.xyz[2] == max_values[2]:
             boundry_nodes.append(n)
 
+    # print("there are " + str(len(boundry_nodes)) + " out of " + str(len(nodes)) + " boundry nodes")
+    return boundry_nodes
 
+
+def find_m_point(max_values, displacement_factor):
+    m_point = np.array([0, 0, 0])
+    m_point[0] = max_values[0] - displacement_factor.xyz[0] / 2
+    m_point[1] = max_values[1] - displacement_factor.xyz[1] / 2
+    m_point[2] = max_values[2] - displacement_factor.xyz[2] / 2
+    return m_point
+
+def assign_beams(nodes, elements):
+    max_values = max_xyz(nodes)
+    displacement_factor = direction_delta(nodes)
+
+    # FIND BOUNDRY NODES
+    boundry_nodes = find_boundries(nodes)
 
     mid_point = find_m_point(max_values, displacement_factor)
 
@@ -306,12 +310,18 @@ def main():
 
     for beam_n in beams:
         for e in elements:
-            #if (e.nodes[0] in beam_n.nodes and e.nodes[1] in beam_n.nodes) or (e.nodes[0] in beam_n.nodes and e.nodes[2] in beam_n.nodes) or (e.nodes[1] in beam_n.nodes and e.nodes[2] in beam_n.nodes):
             if e.nodes[0] in beam_n.nodes and e.nodes[1] in beam_n.nodes and e.nodes[2] in beam_n.nodes:
                 e.align_with_line(beam_n)
 
+def main():
+    nodes = []
+    elements = []
+    # nodes = read_nodes()
+    # elements = read_elements(nodes)
+    nodes, elements = read_msh("lattice")
+    displacement_factor = direction_delta(nodes)
 
-    print("there are " + str(len(boundry_nodes)) + " out of " + str(len(nodes)) + " boundry nodes")
+    assign_beams(nodes, elements)
 
     #nodes = read_nodes()
     print("nodes per unit: {}".format(len(nodes)))
