@@ -5,26 +5,26 @@ import time
 
 
 def align_line_and_element(elements, nodes, id):
-	""" Give an element the right id if it fits with the list of nodes
-	"""
+	# Give an element the right id if it fits with the list of nodes
+	
 	for e in elements:
 		if e.nodes[0] in nodes and e.nodes[1] in nodes and e.nodes[2] in nodes:
 			e.set_beam(id)
 
 
 def write_properties_on_mesh(mesh_file, elements, total_nodes, num_of_beams, x = 1, y = 1, z = 1):
-""" Writes element properties on a mesh file
+# Writes element properties on a mesh file
 
-This is meant to happen after a .msh file has been converted from .stl through gmsh.
-This function writes a .msh file with each beam written with new properties
+# This is meant to happen after a .msh file has been converted from .stl through gmsh.
+# This function writes a .msh file with each beam written with new properties
 
-Args:
-	mesh_file: The name of the mesh file to be overwritten (minus '.msh')
-	elements: A list of elements
-	total_nodes: An Integer representing the total number of nodes
-	num_of_beams: An Integer represeting the total number of beams
-	x,y,z: Integers represetning the mesh volume. This is default 1,1,1
-"""
+# Args:
+# 	mesh_file: The name of the mesh file to be overwritten (minus '.msh')
+# 	elements: A list of elements
+# 	total_nodes: An Integer representing the total number of nodes
+# 	num_of_beams: An Integer represeting the total number of beams
+# 	x,y,z: Integers represetning the mesh volume. This is default 1,1,1
+
 	print("Info\t: Started on " + time.strftime("%c"))
 	
 	total_elements = (x*y*z) * len(elements)

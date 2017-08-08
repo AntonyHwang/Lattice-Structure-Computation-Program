@@ -4,16 +4,16 @@ import os
 
 
 def unitTest(nodes, elements, displacement_factor):
-""" Runs general unit tests on app.py
+# Runs general unit tests on app.py
 
-Runs general unit tests incrementing the x, y, z levels each time. Writes the
-output to output\test_output.txt
+# Runs general unit tests incrementing the x, y, z levels each time. Writes the
+# output to output\test_output.txt
 
-Args:
-	nodes: A list of nodes
-	elements: A list of elements
-	displacement_factor: A Node with the displacement factors
-"""
+# Args:
+# 	nodes: A list of nodes
+# 	elements: A list of elements
+# 	displacement_factor: A Node with the displacement factors
+
 	output = open("output\\test_output.txt", "w")
 	count = 0
 	for i in range(0,10):
@@ -28,20 +28,20 @@ Args:
 
 
 def individual_test(nodes, elements, displacement_factor, x, y, z, num_of_tests):
-""" Runs individual tests on app.py
+# Runs individual tests on app.py
 
-Runs a test for a certain lattice structure size. Runs it a set number of times.
-Writes the output to output\test_output.txt
+# Runs a test for a certain lattice structure size. Runs it a set number of times.
+# Writes the output to output\test_output.txt
 
-Args:
-	nodes: A list of nodes
-	elements: A list of elements
-	displacement_factor: A Node with the displacement factors
-	x: The 'X' dimension of the lattice
-	y: The 'Y' dimension of the lattice
-	z: The 'Z' dimension of the lattice
-	num_of_tests: The number of times to repeat the test
-"""
+# Args:
+# 	nodes: A list of nodes
+# 	elements: A list of elements
+# 	displacement_factor: A Node with the displacement factors
+# 	x: The 'X' dimension of the lattice
+# 	y: The 'Y' dimension of the lattice
+# 	z: The 'Z' dimension of the lattice
+# 	num_of_tests: The number of times to repeat the test
+
 	output = open("output\\test_output.txt", "w")
 	count = 0
 	total_time = 0
