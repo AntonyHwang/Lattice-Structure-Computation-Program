@@ -117,7 +117,7 @@ class Node(object):
         # Returns:
         #     A str represntation of the Node. Ex. 'x y z'
 
-        return self.xyz[0] + ' ' + self.xyz[1] + ' ' + self.xyz[2]
+        return str(self.xyz[0]) + ' ' + str(self.xyz[1]) + ' ' + str(self.xyz[2])
 
 
 class Element(object):
@@ -171,6 +171,9 @@ class Element(object):
     #     A string of material attributes for printing. Ex. '2 2 0 1'
 
         return str(self.attributes[0]) + ' ' + str(self.attributes[1]) + ' ' + str(self.attributes[2]) + ' ' + str(self.attributes[3])
+
+    def toString(self):
+        return self.attributes_string() + ' ' +  self.nodes[0].toString() + ' ' +  self.nodes[1].toString() + ' ' +  self.nodes[2].toString()
 
 
 class Beam(object):
@@ -514,13 +517,49 @@ def assign_beams(nodes, elements):
                 e.align_with_line(beam_n)
 
 
+def to_first_quadrant(nodes):
+    # Moves all nodes to the first quadrant
+
+    # if any value of nodes is negative, shifts the whole list of nodes to positive.
+
+    # Args:
+    #     nodes: A list of nodes to be operated on. Passed in and edited by reference
+
+    minX = nodes[0].xyz[0]
+    minY = nodes[0].xyz[1]
+    minZ = nodes[0].xyz[2]
+
+    for n in nodes:
+        if minX > n.xyz[0]:
+            minX = n.xyz[0]
+        if minY > n.xyz[1]:
+            minY = n.xyz[1]
+        if minZ > n.xyz[2]:
+            minZ = n.xyz[2]
+
+    diff = [minX,minY,minZ]
+    if minX < 0:
+        diff[0] = minX * -1
+    if minY < 0:
+        diff[1] = minY * -1
+    if minZ < 0:
+        diff[2] = minZ * -1
+
+    for n in nodes:
+        n.xyz[0] += diff[0]
+        n.xyz[1] += diff[1]
+        n.xyz[2] += diff[2]
+
+
 def main():
     nodes = []
     elements = []
-    # nodes = read_nodes()
-    # elements = read_elements(nodes)
-    nodes, elements = read_msh("lattice")
+    nodes = read_nodes()
+    elements = read_elements(nodes)
+    # nodes, elements = read_msh("lattice")
     displacement_factor = direction_delta(nodes)
+
+    to_first_quadrant(nodes)
 
     assign_beams(nodes, elements)
 
