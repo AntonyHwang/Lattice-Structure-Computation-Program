@@ -6,7 +6,7 @@ import time
 
 def align_line_and_element(elements, nodes, id):
 	# Give an element the right id if it fits with the list of nodes
-	
+
 	for e in elements:
 		if e.nodes[0] in nodes and e.nodes[1] in nodes and e.nodes[2] in nodes:
 			e.set_beam(id)

@@ -225,14 +225,14 @@ def is_number(s):
         return False
 
 
-def read_nodes():
+def read_nodes(model):
     # Reads a ANSYS ASCII nodes file. Needs to be named 'nodes.txt' and be placed in the working directory
 
     # Returns:
     #     A list of nodes read from the node file
 
     nodes = []
-    with open('nodes.txt') as node_file:
+    with open(model + '\\nodes.txt') as node_file:
         for line in node_file:
             if not line.strip():
                 continue
@@ -244,7 +244,7 @@ def read_nodes():
     return nodes
 
 
-def read_elements(nodes):
+def read_elements(model, nodes):
     # Reads an ANSYS ASCII elements file. Needs to be named 'elements.txt' and be placed in the working directory
     
     # Returns:
@@ -253,7 +253,7 @@ def read_elements(nodes):
     elements = []
     global ELEMENT_ATTRIBUTES
     flag = False
-    with open('elements.txt') as element_file:
+    with open(model + '\\elements.txt') as element_file:
         for line in element_file:
             if not line.strip():
                 continue
@@ -485,14 +485,14 @@ def find_m_point(max_values, displacement_factor):
     # Returns:
     #     A numpy array with three elements where [x,y,z] that represents the mid point
     
-    m_point = np.array([0, 0, 0])
+    m_point = np.array([0.0, 0.0, 0.0])
     m_point[0] = max_values[0] - displacement_factor.xyz[0] / 2
     m_point[1] = max_values[1] - displacement_factor.xyz[1] / 2
     m_point[2] = max_values[2] - displacement_factor.xyz[2] / 2
     return m_point
 
 
-def assign_beams(nodes, elements):
+def assign_beams(nodes, elements, beams):
     # Assigns nodes and elements to beams
     
     # Uses the functions in beam.py to find beams. Then assigns the elements to beams
@@ -504,20 +504,13 @@ def assign_beams(nodes, elements):
     max_values = max_xyz(nodes)
     displacement_factor = direction_delta(nodes)
 
-    # FIND BOUNDRY NODES
-    boundry_nodes = find_boundries(nodes)
-
-    mid_point = find_m_point(max_values, displacement_factor)
-
-    beams = beam.beams([n for n in nodes if n not in boundry_nodes], boundry_nodes, mid_point)
-
     for beam_n in beams:
         for e in elements:
             if e.nodes[0] in beam_n.nodes and e.nodes[1] in beam_n.nodes and e.nodes[2] in beam_n.nodes:
                 e.align_with_line(beam_n)
 
 
-def to_first_quadrant(nodes):
+def to_first_ocant(nodes):
     # Moves all nodes to the first quadrant
 
     # if any value of nodes is negative, shifts the whole list of nodes to positive.
@@ -552,16 +545,27 @@ def to_first_quadrant(nodes):
 
 
 def main():
+    model = int(input("45 or 90?: "))
     nodes = []
     elements = []
-    nodes = read_nodes()
-    elements = read_elements(nodes)
+    nodes = read_nodes(str(model))
+    elements = read_elements(str(model), nodes)
     # nodes, elements = read_msh("lattice")
     displacement_factor = direction_delta(nodes)
 
-    to_first_quadrant(nodes)
+    to_first_ocant(nodes)    
 
-    assign_beams(nodes, elements)
+    beams = []
+
+    if model == 90:
+        boundry_nodes = find_boundries(nodes)
+        beams = beam.beams([n for n in nodes if n not in boundry_nodes], boundry_nodes, find_m_point(max_xyz(nodes), displacement_factor))
+
+    if model == 45:
+        beams = beam.beams_by_octant(nodes, find_m_point(max_xyz(nodes), displacement_factor))
+
+
+    assign_beams(nodes, elements, beams)
 
     #nodes = read_nodes()
     print("nodes per unit: {}".format(len(nodes)))
@@ -578,7 +582,7 @@ def main():
     converter.stl_to_msh('output\\lattice', 'output\\lattice')
 
     print("\n\nAssigning elements to beams...")
-    remap.write_properties_on_mesh('output/lattice',elements, len(nodes), x, y, z)
+    remap.write_properties_on_mesh('output/lattice',elements, len(nodes), len(beams), x, y, z)
     print("\nruntime: " + str(time.time() - start_time))
 
 

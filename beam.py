@@ -34,8 +34,6 @@ def group_lines(lines):
 
 def check_exist(n, l):
     for node in l:
-        #print("x: " + str(n[0]) + " " + str(node[0]) + " y: " + str(n[1]) + " " + str(node[1]) + " z: " + str(n[2]) + " " + str(node[2]))
-        #print("\n")
         if (n.xyz[0] == node.xyz[0] and n.xyz[1] == node.xyz[1] and n.xyz[2] == node.xyz[2]):
             return True
     return False
@@ -112,8 +110,79 @@ def beams(nodes, boundary_nodes, mid_point):
     return beams
 
 
+def beams_by_octant(nodes, mid_point):
+  truth_values = [True, False]
+  idx = 0
+  beams = []
+  count = 0
+
+  # print(str(mid_point[0]) +'\t' + str(mid_point[1]) + '\t' + str(mid_point[2]))
+
+  for x in truth_values:
+    for y in truth_values:
+      for z in truth_values:
+        beams.append(Beam(count, get_nodes_octant(x, y, z, nodes, mid_point)))
+        count += 1
+
+  # print("midpoint: "+ np.array_str(mid_point))
+  # for b in beams:
+  #   print('\n\n' + str(b.idx) + '\t' + str(len(b.nodes)))
+  #   for n in b.nodes:
+  #     print(n.toString())
+
+  return beams
 
 
+def get_nodes_octant(x_pos, y_pos, z_pos, nodes, mid_point):
+  
+  ret = []
+  BUFFER = 0.05
 
+  if x_pos and y_pos and z_pos: # (+, +, +)
+    for n in nodes:
+      if n.xyz[0] >= mid_point[0] - BUFFER and n.xyz[1] >= mid_point[1] - BUFFER and n.xyz[2] >= mid_point[2] - BUFFER:
+        ret.append(n)
+    return ret
 
+  elif x_pos and y_pos and not z_pos: # (+, +, -)
+    for n in nodes:
+      if n.xyz[0] >= mid_point[0] - BUFFER and n.xyz[1] >= mid_point[1] - BUFFER and n.xyz[2] <= mid_point[2] + BUFFER:
+        ret.append(n)
+    return ret
+
+  elif x_pos and not y_pos and not z_pos: # (+, -, -)
+    for n in nodes:
+      if n.xyz[0] >= mid_point[0] - BUFFER and n.xyz[1] <= mid_point[1] + BUFFER and n.xyz[2] <= mid_point[2] + BUFFER:
+        ret.append(n)
+    return ret
+
+  elif x_pos and not y_pos and z_pos: # (+, -, +)
+    for n in nodes:
+      if n.xyz[0] >= mid_point[0] - BUFFER and n.xyz[1] <= mid_point[1] + BUFFER and n.xyz[2] >= mid_point[2] - BUFFER:
+        ret.append(n)
+    return ret
+
+  elif not x_pos and y_pos and z_pos: # (-, +, +)
+    for n in nodes:
+      if n.xyz[0] <= mid_point[0] + BUFFER and n.xyz[1] >= mid_point[1] - BUFFER and n.xyz[2] >= mid_point[2] - BUFFER:
+        ret.append(n)
+    return ret
+
+  elif not x_pos and not y_pos and z_pos: # (-, -, +)
+    for n in nodes:
+      if n.xyz[0] <= mid_point[0] + BUFFER and n.xyz[1] <= mid_point[1] + BUFFER and n.xyz[2] >= mid_point[2] - BUFFER:
+        ret.append(n)
+    return ret
+
+  elif not x_pos and y_pos and not z_pos: # (-, +, -)
+    for n in nodes:
+      if n.xyz[0] <= mid_point[0] + BUFFER and n.xyz[1] >= mid_point[1] - BUFFER and n.xyz[2] <= mid_point[2] + BUFFER:
+        ret.append(n)
+    return ret
+
+  else: # (-, -, -)
+    for n in nodes:
+      if n.xyz[0] <= mid_point[0] + BUFFER and n.xyz[1] <= mid_point[1] + BUFFER and n.xyz[2] <= mid_point[2] + BUFFER:
+        ret.append(n)
+    return ret
 
