@@ -111,6 +111,15 @@ def beams(nodes, boundary_nodes, mid_point):
 
 
 def beams_by_octant(nodes, mid_point):
+  # Gets a list of Beam objects separated by octant
+
+  # Args:
+  #   nodes: A list of Node objects to separate into beams
+  #   mid_point: A numpy array represetning the coordinate that is the midpoint of the shape
+
+  # Returns:
+  #   A list of Beam objects that have been defined by which octant they belong to.
+
   truth_values = [True, False]
   idx = 0
   beams = []
@@ -134,7 +143,19 @@ def beams_by_octant(nodes, mid_point):
 
 
 def get_nodes_octant(x_pos, y_pos, z_pos, nodes, mid_point):
-  
+  # Gets all the nodes that lie in a specific ocatant (in 3d)
+
+  # Takes whether or not x,y,z are positive and finds all the nodes in that octant
+  # comapred to the mid_point
+
+  # Args:
+  #   x_pos, y_pos, z_pos: Booleans representing whether x,y,z are positive 
+  #                        (or which octant the points should belong to)
+  #   nodes: A list of all Node objects
+  #   mid_point: A numpy array representing the middle coordinate of the shape.
+  # Returns:
+  #   A list of all the nodes that lie in the octant specified
+
   ret = []
   BUFFER = 0.05
 
