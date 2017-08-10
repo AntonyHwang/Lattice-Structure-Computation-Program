@@ -155,13 +155,13 @@ class Element(object):
 
         self.attributes[3] = beam_id
 
-    def align_with_line(self, line):
+    def align_with_beam(self, beam):
     # Sets the beamid of the Elemnt to the id of a Line passed in
 
     # Args:
     #     Line to pull id from
 
-        self.attributes[3] = line.idx
+        self.attributes[3] = beam.idx
         #print("new attributes: " + self.attributes_string())
     
     def attributes_string(self):
@@ -183,14 +183,14 @@ class Beam(object):
     #     idx: An Integer that identifies a beam
     #     nodes: A list of Node objects in the beam
     
-    def __init__(self, idx, nodes):
+    def __init__(self, idx, b_nodes, nodes):
     # Constructor
 
     # Args:
     #     idx: An int that identifies the beam
     #     nodes: A list of Node objects in the beam. Can be empty and filled in later
 
-        self.idx, self.nodes = idx, nodes
+        self.idx, self.b_nodes, self.nodes = idx, b_nodes, nodes
 
     def append(self, node):
     # Appends a node the the beam
@@ -492,7 +492,7 @@ def find_m_point(max_values, displacement_factor):
     return m_point
 
 
-def assign_beams(nodes, elements, beams):
+def assign_beams(elements, beams):
     # Assigns nodes and elements to beams
     
     # Uses the functions in beam.py to find beams. Then assigns the elements to beams
@@ -500,14 +500,11 @@ def assign_beams(nodes, elements, beams):
     # Args:
     #     nodes: A list of Node objects
     #     elements: A list of Element objects
-    
-    max_values = max_xyz(nodes)
-    displacement_factor = direction_delta(nodes)
 
     for beam_n in beams:
         for e in elements:
             if e.nodes[0] in beam_n.nodes and e.nodes[1] in beam_n.nodes and e.nodes[2] in beam_n.nodes:
-                e.align_with_line(beam_n)
+                e.align_with_beam(beam_n)
 
 
 def to_first_ocant(nodes):
@@ -558,14 +555,16 @@ def main():
     beams = []
 
     if model == 90:
+        max_values = max_xyz(nodes)
         boundry_nodes = find_boundries(nodes)
-        beams = beam.beams([n for n in nodes if n not in boundry_nodes], boundry_nodes, find_m_point(max_xyz(nodes), displacement_factor))
+        mid_point = find_m_point(max_values, displacement_factor)
+        beams = beam.beams([n for n in nodes if n not in boundry_nodes], boundry_nodes, mid_point)
 
     if model == 45:
         beams = beam.beams_by_octant(nodes, find_m_point(max_xyz(nodes), displacement_factor))
 
 
-    assign_beams(nodes, elements, beams)
+    assign_beams(elements, beams)
 
     #nodes = read_nodes()
     print("nodes per unit: {}".format(len(nodes)))

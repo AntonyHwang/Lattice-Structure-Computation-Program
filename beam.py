@@ -11,6 +11,24 @@ def norm(vec):
     else:
       return vec
 
+def unit(vec):
+    magnitude = np.linalg.norm(vec)
+    if magnitude != 0:
+        n_vec = vec / magnitude
+        return n_vec
+    else:
+        return vec
+
+def check_within(vec, l_vec):
+    angle = np.arccos(np.clip(np.dot(vec, l_vec), -1.0, 1.0))
+    # if angle > (math.pi * 3.0 / 4.0) and angle < (math.pi * 5.0 / 4.0):
+    if angle < (math.pi / 6.0):
+        # print("true")
+        return True
+    else:
+        # print("false")
+        return False
+
 #group lines by comapring dv
 def group_lines(lines):
     idx_num = 0
@@ -38,77 +56,83 @@ def check_exist(n, l):
             return True
     return False
 
-def get_next_node(mid_point, nodes, node_list, l_vec, dist, p_node, status):
+def get_next_node(mid_point, nodes, node_list, l_vec, p_node):
     d = [((n.xyz - p_node) ** 2).sum() for n in nodes]
     ndx = np.argsort(d)
     n_node = nodes[ndx[0]].xyz
     vec = n_node - p_node
     m_vec = mid_point - p_node
-    on_line = (np.cross(vec, l_vec) == np.array([0, 0, 0])).all()
     n_dist = np.linalg.norm(vec)
     m_dist = np.linalg.norm(m_vec)
-    if (on_line and n_dist <= m_dist):
-        status = 1
+    on_line = (unit(vec) == l_vec).all()
+    if (check_within(unit(vec), l_vec) and n_dist <= m_dist):
         node_list.append(n_node)
         new_nodes = np.delete(nodes, ndx[0])
-        get_next_node(mid_point, new_nodes, node_list, l_vec, dist, n_node, status)
+        get_next_node(mid_point, new_nodes, node_list, l_vec, n_node)
 
-    elif(not on_line):
+    elif(not on_line and n_dist <= m_dist):
         new_nodes = np.delete(nodes, ndx[0])
-        get_next_node(mid_point, new_nodes, node_list, l_vec, dist, p_node, status)
+        get_next_node(mid_point, new_nodes, node_list, l_vec, p_node)
 
-    #print("")
-    #print(node_list)
     return node_list
 
 #https://stackoverflow.com/questions/2486093/millions-of-3d-points-how-to-find-the-10-of-them-closest-to-a-given-point
-def get_line(nodes, start_node, mid_point):
+def get_beam_nodes(nodes, beam, mid_point):
     node_list = []
     line = Line(-1, np.array([]), [])
-    node = start_node
-    node_list.append(node)
-    d = [((n.xyz - node)**2).sum() for n in nodes]
+    for start_node in beam.b_nodes:
+        node_list.append(start_node)
+        d = [((n.xyz - start_node.xyz)**2).sum() for n in nodes]
+        ndx = np.argsort(d)
+        n_node = nodes[ndx[0]].xyz
+        vec = n_node - start_node.xyz
+        dv = unit(vec)
+        node_list.append(n_node)
+        new_nodes = np.delete(nodes, ndx[0])
+        node_list = get_next_node(mid_point, new_nodes, node_list, dv, n_node)
+    beam.nodes.extend(node_list)
+    return beam
+
+def get_beam_boundary(beam, boundary_nodes, idx, node_visited):
+    d = [((n.xyz - boundary_nodes[idx].xyz) ** 2).sum() for n in boundary_nodes]
     ndx = np.argsort(d)
-    n_node = nodes[ndx[0]].xyz
-    vec = n_node - node
-    dist = np.linalg.norm(vec)
-    line.dv = vec
-    node_list.append(n_node)
-    #print(node_list)
-    new_nodes = np.delete(nodes, ndx[0])
-    node_list = (get_next_node(mid_point, new_nodes, node_list, vec, dist, n_node, 0))
-    # print(node_list)
-    # print("")
-    #get_next_node(new_nodes, node_list, vec, dist, n_node, 0)
-    line.nodes = node_list
-    return line
+    beam.b_nodes.append(boundary_nodes[idx])
+    node_visited[idx] = 1
+    if node_visited[ndx[1]] == 0:
+        beam, boundary_nodes, node_visited = get_beam_boundary(beam, boundary_nodes, ndx[1], node_visited)
+    if node_visited[ndx[2]] == 0:
+        beam, boundary_nodes, node_visited = get_beam_boundary(beam, boundary_nodes, ndx[2], node_visited)
+    if node_visited[ndx[3]] == 0:
+        beam, boundary_nodes, node_visited = get_beam_boundary(beam, boundary_nodes, ndx[3], node_visited)
+    if node_visited[ndx[4]] == 0:
+        beam, boundary_nodes, node_visited = get_beam_boundary(beam, boundary_nodes, ndx[4], node_visited)
+
+    return beam, boundary_nodes, node_visited
 
 def beams(nodes, boundary_nodes, mid_point):
-    lines = []
+    print("boundary: " + str(len(boundary_nodes)))
     beams = []
-    for node in boundary_nodes:
-        lines.append(get_line(nodes, node.xyz, mid_point))
-    lines = group_lines(lines)
-
-    for num in range(0, len(lines)):
-        if lines[num].idx != -1:
-            beam = Beam(lines[num].idx, [])
-            #print(type(lines[num].nodes[0]))
-            beam.nodes.extend(lines[num].nodes)
-            for num2 in range(0, len(lines)):
-                # print(lines[num].idx, lines[num2].idx)
-                if num != num2 and lines[num].idx == lines[num2].idx:
-                    # print("reached")
-                    #add nodes
-                    lines[num2].idx = -1
-                    beam.nodes.extend(lines[num2].nodes)
-                    # print(lines[num2].nodes)
-            lines[num].idx = -1
-           #print(beam.idx)
+    beam_idx = 0
+    node_visited = [0] * len(boundary_nodes)
+    for idx in range (0, len(boundary_nodes)):
+        # print(node_visited[idx])
+        if node_visited[idx] == 0:
+            beam_idx += 1
+            beam = Beam(beam_idx, [], [])
+            beam, boundary_nodes, node_visited = get_beam_boundary(beam, boundary_nodes, idx, node_visited)
+            beam = get_beam_nodes(nodes, beam, mid_point)
             beams.append(beam)
 
-    return beams
+    for beam in beams:
+        print("Beam ID: " + str(beam.idx))
+        print(len(beam.b_nodes))
 
+    # for beam in beams:
+    #     beam = get_beam_nodes(nodes, beam, mid_point)
+    print("Number of beams: " + str(len(beams)))
+    print(len(beams))
+
+    return beams
 
 def beams_by_octant(nodes, mid_point):
   # Gets a list of Beam objects separated by octant
@@ -130,7 +154,7 @@ def beams_by_octant(nodes, mid_point):
   for x in truth_values:
     for y in truth_values:
       for z in truth_values:
-        beams.append(Beam(count, get_nodes_octant(x, y, z, nodes, mid_point)))
+        beams.append(Beam(count, [], get_nodes_octant(x, y, z, nodes, mid_point)))
         count += 1
 
   # print("midpoint: "+ np.array_str(mid_point))
