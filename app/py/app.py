@@ -2,11 +2,13 @@ import sys
 import time
 import numpy as np
 import math
-import progressbar
 import beam
 import remap
 import gmsh_conversion as converter
+from os.path import dirname, abspath
+import msh_to_x3d
 
+val =  dirname(dirname(abspath(__file__)))
 
 class Lattice(object):
     # A collection of nodes and elements
@@ -376,7 +378,7 @@ def max_xyz(nodes):
 
 
 
-def generate_stl(nodes, elements, x, y, z):
+def generate_stl(filename, nodes, elements, x, y, z):
 # Generate a .stl file that represents a lattice volume
 
 # Writes triangular elements to an stl file. This tracks just elements and 
@@ -392,10 +394,10 @@ def generate_stl(nodes, elements, x, y, z):
     displacement_factor = direction_delta(nodes)
     total_nodes = len(nodes)
 
-    output = open("output/lattice.stl", 'w')
+    output = open(val + "/output/" + filename + ".stl", 'w')
     output.write("solid Created by LatticeGenerator\n")
 
-    bar = progressbar.ProgressBar(max_value=(x*y*z))
+    #bar = progressbar.ProgressBar(max_value=(x*y*z))
     
     # Progressbar Variables
     count = 0
@@ -414,8 +416,8 @@ def generate_stl(nodes, elements, x, y, z):
             
             for curr_z in range(0,z):
                 count += 1
-                if count % fraction <= 1:
-                    bar.update(count)
+                # if count % fraction <= 1:
+                #     bar.update(count)
 
                 for e in elements:
                     norm = normal(e)
@@ -540,50 +542,51 @@ def to_first_ocant(nodes):
         n.xyz[1] += diff[1]
         n.xyz[2] += diff[2]
 
+if __name__ == "__main__":
+    shape = str(sys.argv[1])
+    x = int(sys.argv[2])
+    y = int(sys.argv[3])
+    z = int(sys.argv[4])
 
-def main():
-    model = int(input("45 or 90?: "))
-    nodes = []
-    elements = []
-    nodes = read_nodes(str(model))
-    elements = read_elements(str(model), nodes)
-    # nodes, elements = read_msh("lattice")
+    shape_data_path = val + "/" + shape
+
+    filename = shape + "_" + str(x) + "_" + str(y) + "_" + str(z)
+
+    nodes = read_nodes(shape_data_path)
+    elements = read_elements(shape_data_path, nodes)
+
     displacement_factor = direction_delta(nodes)
 
-    to_first_ocant(nodes)    
+    to_first_ocant(nodes)
 
     beams = []
 
-    if model == 90:
+    if shape == "90":
         max_values = max_xyz(nodes)
         boundry_nodes = find_boundries(nodes)
         mid_point = find_m_point(max_values, displacement_factor)
         beams = beam.beams([n for n in nodes if n not in boundry_nodes], boundry_nodes, mid_point)
 
-    if model == 45:
+    if shape == "45":
         beams = beam.beams_by_octant(nodes, find_m_point(max_xyz(nodes), displacement_factor))
 
 
     assign_beams(elements, beams)
 
     #nodes = read_nodes()
-    print("nodes per unit: {}".format(len(nodes)))
+    # print("nodes per unit: {}".format(len(nodes)))
     #elements = read_elements(nodes)
 
-    print("\ninput values for lattice structure")
-    x = int(input("x: "))
-    y = int(input("y: "))
-    z = int(input("z: "))
+    # print("\ninput values for lattice structure")
+
     start_time = time.time()
-    generate_stl(nodes, elements, x, y, z)
+    generate_stl(filename, nodes, elements, x, y, z)
 
-    print("\n\nConverting .stl to .msh...")
-    converter.stl_to_msh('output\\lattice', 'output\\lattice')
+    # print("\n\nConverting .stl to .msh...")
+    converter.stl_to_msh(val + '\\output\\' + filename, val+ '\\output\\' + filename)
 
-    print("\n\nAssigning elements to beams...")
-    remap.write_properties_on_mesh('output/lattice',elements, len(nodes), len(beams), x, y, z)
-    print("\nruntime: " + str(time.time() - start_time))
-
-
-if __name__ == "__main__":
-    main()
+    # print("\n\nAssigning elements to beams...")
+    remap.write_properties_on_mesh(val + '\\output\\' + filename,elements, len(nodes), len(beams), x, y, z)
+    # print("\nruntime: " + str(time.time() - start_time))
+    filename = shape + "_" + str(x) + "_" + str(y) + "_" + str(z)
+    msh_to_x3d.mshTox3d(filename)

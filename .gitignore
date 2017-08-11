@@ -1,0 +1,8 @@
+.vscode
+*.pyc
+ignore
+*.x3d
+*.msh
+*.st*
+*.txt
+jobs
