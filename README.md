@@ -19,11 +19,12 @@ GMSH
 
 [GMSH](http://gmsh.info/#Download) can be installed from the link [here](http://gmsh.info/#Download). 
 
-Numpy and Progressbar can be installed by running
+Numpy and Progressbar can be installed by calling:
 ```
 pip install numpy
 pip install progressbar2
 ```
+in the command-line.
 
 ### Installing
 
