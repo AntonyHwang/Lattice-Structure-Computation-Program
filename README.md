@@ -14,7 +14,7 @@ What things you need to install the software and how to install them
 python 3.6
 pip install numpy
 pip install progressbar2
-GMSH installed and added to PATH
+[GMSH](http://gmsh.info/#Download) (add directory to PATH)
 ```
 
 ### Installing
