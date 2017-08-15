@@ -17,7 +17,7 @@ progressbar2
 GMSH
 ```
 
-[GMSH](http://gmsh.info/) can be installed from the link [here](http://gmsh.info/#Download). After you exctract it, the direcctory must be added to the path.
+[GMSH](http://gmsh.info/) can be installed from the link [here](http://gmsh.info/#Download). After you extract it, the direcctory must be added to the path.
 
 Numpy and Progressbar can be installed by calling:
 ```
