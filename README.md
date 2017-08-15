@@ -26,13 +26,15 @@ pip install progressbar2
 ```
 in the command-line.
 
-### Installing
+### Generating a Lattice
 
 Run Lattice Generation by running in the project directory:
 
 ```
 python app.py
 ```
+
+input the model you want to multiply `45` or `90`, followed by the dimensions of the volume `X x Y x Z`.
 
 Output files are placed in lattice\output in .stl and .msh format
 
