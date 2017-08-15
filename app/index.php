@@ -12,7 +12,7 @@
     //         $('#loader').removeAttr("hidden");
     //     });
     function load() {
-        if ($('#x').val() === "" && $('#y').val() === "" && $('#z').val() === "") {
+        if ($('#x').val() == "" || $('#y').val() == "" || $('#z').val() == "") {
 
         } else {
             $('#loader').removeAttr("hidden");
@@ -59,6 +59,12 @@
         set_time_limit(150);
         $call_python = $py_path." py/app.py 2>&1".$shape." ".$x." ".$y." ".$z;
         $result = shell_exec($call_python);
-        header('Location: x3d_viewer.php?filename='.$shape."_".$x."_".$y."_".$z);
+        if ($x != "" && $y != "" && $z != "") {
+            header('Location: x3d_viewer.php?filename='.$shape."_".$x."_".$y."_".$z);
+        }
+        else {
+            $message = "Make sure all the fields are filled";
+            echo "<script type='text/javascript'>alert('$message');</script>";
+        }
     }
 ?>
