@@ -10,12 +10,12 @@ These instructions will get you a copy of the project up and running on your loc
 
 What things you need to install the software and how to install them
 
-```
-python 3.6
-numpy
-progressbar2
-GMSH
-```
+
+* [python 3.6](https://www.python.org/downloads/)
+* [numpy](http://www.numpy.org/)
+* [progressbar2](https://pypi.python.org/pypi/progressbar2)
+* [GMSH](http://gmsh.info/)
+
 
 [GMSH](http://gmsh.info/) can be installed from the link [here](http://gmsh.info/#Download). After you extract it, the direcctory must be added to the path.
 
