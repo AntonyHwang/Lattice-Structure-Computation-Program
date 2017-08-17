@@ -13,29 +13,42 @@
 	  	<script>	
 		  	function center(event)
 		  	{
-		  		document.getElementById('x3d_element').runtime.fitAll();
+		  		document.getElementById('the_element').runtime.fitAll();
 		  	}
+
 	  	</script>
+		<style>
+			#the_element {
+				width: 50%;
+				height: 50%;
+				border: none;  // remove the default 1px border
+				position: relative;
+			}
+			#toggler {
+				position: absolute;
+				float: left;
+				z-index: 1;
+				top: 0px;
+				left: 0px;
+				width: 10em;
+				height: 2em;
+				border: none;
+				background-color: #202021;
+				color: #ccc;
+			}
+		</style>
 	</head>
 
 
 	<body>
-		<div id="display">
-			<h1>3D Display of Mesh</h1>
-			<x3d id='x3d_element' class="x3d_element" align='center' style="left:30%;">
-				<div id="instructions">
-					<button type="button" onclick="center(event)" class="btn btn-secondary">Center</button>
-				</div>
-
-
+			<br>
+			<br>
+			<br>
+			<x3d id="the_element" style = "width:98%; height:80%; margin-left:1%; margin-right:1%; margin-bottom:1%;">
+				<button id="toggler" onclick="center(event)">Center</button>   
 				<scene>
-					<viewpoint id = "angle1" position='45 0 200' orientation="0 0 1 0" description = "Cam Angle 1"></viewpoint>
-
 					<inline id="x3d_object" url="x3d_output/<?php echo $_GET["filename"];?>.x3d" onload="center();"></inline> 
-
 				</scene> 
 			</x3d>   
-		</div>
-
 	</body>
 </html>
