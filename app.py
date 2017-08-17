@@ -226,13 +226,13 @@ def is_number(s):
 
 
 def read_nodes(model):
-    # Reads a ANSYS ASCII nodes file. Needs to be named 'nodes.txt' and be placed in the working directory
+    # Reads a ANSYS ASCII nodes file.
 
     # Returns:
     #     A list of nodes read from the node file
 
     nodes = []
-    with open(model + '\\nodes.txt') as node_file:
+    with open(model) as node_file:
         for line in node_file:
             if not line.strip():
                 continue
@@ -253,7 +253,7 @@ def read_elements(model, nodes):
     elements = []
     global ELEMENT_ATTRIBUTES
     flag = False
-    with open(model + '\\elements.txt') as element_file:
+    with open(model) as element_file:
         for line in element_file:
             if not line.strip():
                 continue
@@ -548,8 +548,8 @@ def main():
     model = int(input("45 or 90?: "))
     nodes = []
     elements = []
-    nodes = read_nodes(str(model))
-    elements = read_elements(str(model), nodes)
+    nodes = read_nodes(str(model) + '\\nodes.txt')
+    elements = read_elements(str(model) + '\\elements.txt', nodes)
     # nodes, elements = read_msh("lattice")
     displacement_factor = direction_delta(nodes)
 
@@ -584,6 +584,8 @@ def main():
     print("\n\nAssigning elements to beams...")
     remap.write_properties_on_mesh('output/lattice',elements, len(nodes), len(beams), x, y, z)
     print("\nruntime: " + str(time.time() - start_time))
+
+    #converter.view_msh('output\\lattice.msh')
 
 
 if __name__ == "__main__":
