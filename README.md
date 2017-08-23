@@ -2,6 +2,7 @@
 
 dependencies:
 - Python 2.7
+- numpy
 - pythonocc
 - Miniconda 2
-- gmsh
+- GMSH
