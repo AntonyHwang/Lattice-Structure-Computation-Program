@@ -24,28 +24,12 @@
 				border: none;  // remove the default 1px border
 				position: relative;
 			}
-			#toggler {
-				position: absolute;
-				float: left;
-				z-index: 1;
-				top: 0px;
-				left: 0px;
-				width: 10em;
-				height: 2em;
-				border: none;
-				background-color: #202021;
-				color: #ccc;
-			}
 		</style>
 	</head>
 
 
 	<body>
-			<br>
-			<br>
-			<br>
-			<x3d id="the_element" style = "width:98%; height:80%; margin-left:1%; margin-right:1%; margin-bottom:1%;">
-				<button id="toggler" onclick="center(event)">Center</button>   
+			<x3d id="the_element" style = "width:98%; height:90%; margin-left:1%; margin-right:1%; margin-top:5%; margin-bottom:5%;">
 				<scene>
 					<inline id="x3d_object" url="x3d_output/<?php echo $_GET["filename"];?>.x3d" onload="center();"></inline> 
 				</scene> 
