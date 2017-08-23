@@ -5,4 +5,3 @@ dependencies:
 - pythonocc
 - Miniconda 2
 - gmsh
-- Calculix
